@@ -81,6 +81,50 @@ export default function DashboardPage() {
     }
   }, [user])
 
+  const downloadConfigTemplate = async () => {
+    try {
+      if (!user?.member) return
+      
+      // 仕様書準拠のconfig.jsonテンプレートを生成
+      const configTemplate = {
+        role: "member",
+        member_id: user.member.member_id,
+        gateway: {
+          url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+          anon_key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+          channel: "claw_gateway"
+        },
+        minara: {
+          api_endpoint: "https://api.minara.ai/v1",
+          api_key: "REPLACE_WITH_YOUR_MINARA_API_KEY",
+          wallet_address: "REPLACE_WITH_YOUR_WALLET_ADDRESS"
+        },
+        trade: {
+          auto_execute: true,
+          max_position_size: "10%",
+          stop_loss_pct: 2.0,
+          daily_trade_limit: 5,
+          allowed_pairs: ["BTC/USD", "ETH/USD"]
+        },
+        heartbeat_interval_sec: 60
+      }
+
+      const blob = new Blob([JSON.stringify(configTemplate, null, 2)], {
+        type: 'application/json'
+      })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `config-${user.member.member_id}.json`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Failed to download config template:', error)
+    }
+  }
+
   const daysUntilPayment = getDaysUntilPayment(dashboardData.member.feePaidUntil)
   
   const getPaymentAlert = () => {

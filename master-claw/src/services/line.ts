@@ -4,6 +4,7 @@ import { config } from '@/config'
 import { logger, loggerHelpers, PerformanceLogger } from '@/utils/logger'
 import type { Member, RewardSummary, SeminarSchedule } from '@/types'
 import { DatabaseService } from './database'
+import { LineMessages } from './line-messages'
 
 interface LineMessage {
   type: 'text' | 'flex' | 'template'
@@ -41,6 +42,80 @@ export class LineNotificationService {
 
   // 新規メンバー登録通知
   async notifyNewMember(member: Member): Promise<LineNotificationResult> {
+    const perf = new PerformanceLogger('line-new-member-notification')
+
+    try {
+      // アクティブメンバー数を取得
+      const activeMembers = await this.db.getActiveMembers()
+      
+      // 仕様書準拠のテキストメッセージを使用
+      const message = LineMessages.newMemberJoined(member, activeMembers.length)
+
+      const result = await this.sendBroadcastMessage(message)
+      
+      if (result.success) {
+        loggerHelpers.notification.sent('New member notification sent', {
+          member_id: member.member_id,
+          member_name: member.display_name,
+          message_id: result.message_id
+        })
+      }
+
+      perf.finish({ success: result.success })
+      return result
+
+    } catch (error: any) {
+      perf.finishWithError(error)
+      logger.error('Failed to send new member notification', {
+        member_id: member.member_id,
+        error: error.message
+      })
+
+      return {
+        success: false,
+        error: error.message
+      }
+    }
+  }
+
+  // 月次報酬確定通知（仕様書準拠版）
+  async notifyRewardConfirmedSimple(
+    amount: number,
+    txHash: string
+  ): Promise<LineNotificationResult> {
+    const perf = new PerformanceLogger('line-reward-notification-simple')
+
+    try {
+      const message = LineMessages.monthlyRewardPaid(amount, txHash)
+      const result = await this.sendBroadcastMessage(message)
+
+      if (result.success) {
+        loggerHelpers.notification.sent('Reward notification sent', {
+          amount,
+          tx_hash: txHash,
+          message_id: result.message_id
+        })
+      }
+
+      perf.finish({ success: result.success })
+      return result
+
+    } catch (error: any) {
+      perf.finishWithError(error)
+      logger.error('Failed to send reward notification', {
+        amount,
+        error: error.message
+      })
+
+      return {
+        success: false,
+        error: error.message
+      }
+    }
+  }
+
+  // 従来のFlexMessage版も保持（後方互換性）
+  async notifyNewMemberFlex(member: Member): Promise<LineNotificationResult> {
     const perf = new PerformanceLogger('line-new-member-notification')
 
     try {

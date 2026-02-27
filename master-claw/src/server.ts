@@ -109,8 +109,8 @@ export class MasterClawServer {
     // システムステータス
     this.app.get('/status', this.authenticateAdmin.bind(this), this.handleSystemStatus.bind(this))
 
-    // MINARA Webhook
-    this.app.post('/webhook/minara/payment', this.handleMinaraWebhook.bind(this))
+    // MINARA Webhook（仕様書準拠）
+    this.app.post('/api/payment/confirm', this.handleMinaraWebhook.bind(this))
 
     // 管理者API
     this.app.post('/api/admin/broadcast', this.authenticateAdmin.bind(this), this.handleBroadcast.bind(this))

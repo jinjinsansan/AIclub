@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { useAuth } from '@/components/auth/AuthProvider'
 import { useRouter } from 'next/navigation'
 import {
@@ -352,6 +353,13 @@ export default function AdminPage() {
                 <UserGroupIcon className="h-4 w-4 mr-2" />
                 メンバー管理
               </button>
+              
+              <Link href="/admin/rewards-preview">
+                <button className="w-full btn-primary text-sm flex items-center justify-center">
+                  <CurrencyDollarIcon className="h-4 w-4 mr-2" />
+                  月次報酬処理
+                </button>
+              </Link>
               
               <button className="w-full btn-secondary text-sm flex items-center justify-center">
                 <CurrencyDollarIcon className="h-4 w-4 mr-2" />
