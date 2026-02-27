@@ -3,15 +3,15 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/components/auth/AuthProvider'
-import { 
-  ClockIcon, 
-  CurrencyDollarIcon, 
+import {
+  ClockIcon,
+  CurrencyDollarIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon,
-  ArrowLeftIcon 
+  ArrowLeftIcon
 } from '@heroicons/react/24/outline'
 
-export default function PaymentPendingPage() {
+export default function PaymentPage() {
   const { user, signOut } = useAuth()
   const [memberInfo, setMemberInfo] = useState({
     displayName: user?.member?.display_name || '',
@@ -68,7 +68,6 @@ export default function PaymentPendingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
-        {/* ヘッダー */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center text-primary-600 hover:text-primary-700">
             <ArrowLeftIcon className="h-5 w-5 mr-2" />
@@ -76,9 +75,7 @@ export default function PaymentPendingPage() {
           </Link>
         </div>
 
-        {/* メインカード */}
         <div className="card">
-          {/* ステータス表示 */}
           <div className={`rounded-lg p-6 mb-8 border ${statusInfo.bgColor}`}>
             <div className="flex items-start">
               <div className="flex-shrink-0">
@@ -95,7 +92,6 @@ export default function PaymentPendingPage() {
             </div>
           </div>
 
-          {/* アカウント情報 */}
           <div className="mb-8">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">アカウント情報</h3>
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -122,7 +118,6 @@ export default function PaymentPendingPage() {
             </dl>
           </div>
 
-          {/* 支払い情報 */}
           {memberInfo.membershipStatus === 'pending_payment' && (
             <div className="bg-primary-50 border border-primary-200 rounded-lg p-6 mb-8">
               <div className="flex items-start">
@@ -154,7 +149,6 @@ export default function PaymentPendingPage() {
             </div>
           )}
 
-          {/* よくある質問 */}
           <div className="mb-8">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">よくある質問</h3>
             <div className="space-y-4">
@@ -168,7 +162,6 @@ export default function PaymentPendingPage() {
                   確認メールが送信され、ダッシュボードへのアクセスが可能になります。
                 </div>
               </details>
-
               <details className="group">
                 <summary className="flex items-center justify-between cursor-pointer p-3 bg-gray-50 rounded-lg hover:bg-gray-100">
                   <span className="font-medium">支払いが反映されない場合は？</span>
@@ -180,7 +173,6 @@ export default function PaymentPendingPage() {
                   3. 24時間経っても反映されない場合は、LINEオープンチャットまたはサポートにお問い合わせください。
                 </div>
               </details>
-
               <details className="group">
                 <summary className="flex items-center justify-between cursor-pointer p-3 bg-gray-50 rounded-lg hover:bg-gray-100">
                   <span className="font-medium">月額会費について教えてください</span>
@@ -194,7 +186,6 @@ export default function PaymentPendingPage() {
             </div>
           </div>
 
-          {/* アクション */}
           <div className="flex flex-col sm:flex-row gap-4">
             <button
               onClick={() => window.location.reload()}
@@ -211,7 +202,6 @@ export default function PaymentPendingPage() {
           </div>
         </div>
 
-        {/* サポート情報 */}
         <div className="mt-8 text-center text-sm text-gray-600">
           <p>
             お困りの場合は、

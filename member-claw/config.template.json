@@ -1,0 +1,22 @@
+{
+  "role": "member",
+  "member_id": "REPLACE_WITH_YOUR_MEMBER_ID",
+  "gateway": {
+    "url": "REPLACE_WITH_SUPABASE_URL",
+    "anon_key": "REPLACE_WITH_SUPABASE_ANON_KEY",
+    "channel": "claw_gateway"
+  },
+  "minara": {
+    "api_endpoint": "https://api.minara.ai/v1",
+    "api_key": "REPLACE_WITH_YOUR_MINARA_API_KEY",
+    "wallet_address": "REPLACE_WITH_YOUR_WALLET_ADDRESS"
+  },
+  "trade": {
+    "auto_execute": true,
+    "max_position_size": "10%",
+    "stop_loss_pct": 2.0,
+    "daily_trade_limit": 5,
+    "allowed_pairs": ["BTC/USD", "ETH/USD"]
+  },
+  "heartbeat_interval_sec": 60
+}

@@ -2,13 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/components/auth/AuthProvider'
-import { 
-  HomeIcon, 
-  BookOpenIcon, 
+import {
+  HomeIcon,
+  BookOpenIcon,
   VideoCameraIcon,
-  CogIcon,
   CurrencyDollarIcon,
   ShareIcon,
   BellIcon,
@@ -23,24 +22,24 @@ import { cn } from '@/lib/utils'
 
 const navigation = [
   { name: 'ダッシュボード', href: '/dashboard', icon: HomeIcon },
-  { name: 'マニュアル', href: '/dashboard/manual', icon: BookOpenIcon },
-  { name: 'セミナー', href: '/dashboard/seminar', icon: VideoCameraIcon },
-  { name: 'CLAW接続', href: '/dashboard/claw-connect', icon: WifiIcon },
-  { name: 'MINARA連携', href: '/dashboard/minara', icon: ChartBarIcon },
-  { name: '紹介コード', href: '/dashboard/referral', icon: ShareIcon },
-  { name: '通知', href: '/dashboard/notifications', icon: BellIcon },
-  { name: '設定', href: '/dashboard/settings', icon: CogIcon },
+  { name: 'マニュアル', href: '/manual', icon: BookOpenIcon },
+  { name: 'セミナー', href: '/seminar', icon: VideoCameraIcon },
+  { name: 'CLAW接続', href: '/claw-connect', icon: WifiIcon },
+  { name: 'MINARA連携', href: '/minara', icon: ChartBarIcon },
+  { name: '紹介コード', href: '/referral', icon: ShareIcon },
+  { name: '通知', href: '/notifications', icon: BellIcon },
 ]
 
-export default function DashboardLayout({
+export default function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { user: authUser, signOut } = useAuth()
-  
+
   const user = {
     displayName: authUser?.member?.display_name || 'メンバー',
     membershipStatus: authUser?.member?.membership_status || 'pending_payment',
@@ -48,6 +47,12 @@ export default function DashboardLayout({
     nextPaymentDue: authUser?.member?.fee_paid_until || '',
     pendingRewards: authUser?.member?.monthly_reward_pending || 0
   }
+
+  useEffect(() => {
+    if (authUser && authUser.member?.membership_status !== 'active') {
+      router.push('/payment')
+    }
+  }, [authUser, router])
 
   const handleLogout = async () => {
     await signOut()
@@ -86,7 +91,7 @@ export default function DashboardLayout({
               <XMarkIcon className="h-6 w-6" />
             </button>
           </div>
-          
+
           <nav className="flex-1 px-4 py-6 space-y-1">
             {navigation.map((item) => {
               const isActive = pathname === item.href
@@ -122,7 +127,7 @@ export default function DashboardLayout({
           <div className="flex h-12 items-center">
             <h1 className="text-2xl font-bold text-primary-600">OPEN CLAW</h1>
           </div>
-          
+
           {/* User status */}
           <div className="border-t border-gray-200 pt-4">
             <div className="flex items-center">
@@ -190,7 +195,7 @@ export default function DashboardLayout({
               </div>
             </div>
           </div>
-          
+
           <button
             onClick={handleLogout}
             className="flex items-center px-2 py-2 text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 rounded-md"
@@ -212,20 +217,18 @@ export default function DashboardLayout({
             >
               <Bars3Icon className="h-6 w-6" />
             </button>
-            
+
             <div className="flex-1 lg:ml-0 ml-4">
               <h1 className="text-lg font-semibold text-gray-900">
                 {navigation.find(item => item.href === pathname)?.name || 'ダッシュボード'}
               </h1>
             </div>
-            
+
             <div className="flex items-center space-x-4">
-              {/* Notifications */}
-              <button className="text-gray-400 hover:text-gray-500">
+              <Link href="/notifications" className="text-gray-400 hover:text-gray-500">
                 <BellIcon className="h-6 w-6" />
-              </button>
-              
-              {/* User menu */}
+              </Link>
+
               <div className="flex items-center">
                 <div className="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center">
                   <UserIcon className="h-5 w-5 text-primary-600" />
