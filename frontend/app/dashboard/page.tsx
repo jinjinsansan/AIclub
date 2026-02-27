@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useAuth } from '@/components/auth/AuthProvider'
 import { 
   CheckCircleIcon, 
   XCircleIcon, 
@@ -17,53 +18,68 @@ import {
 import { formatCurrency, getDaysUntilPayment, getRelativeTime } from '@/lib/utils'
 
 export default function DashboardPage() {
-  // TODO: 実際のデータを取得
+  const { user } = useAuth()
   const [dashboardData, setDashboardData] = useState({
     member: {
-      id: 'CLAW1234',
-      displayName: '田中太郎',
-      membershipStatus: 'active' as const,
-      clawStatus: 'online' as const,
-      feePaidUntil: '2026-03-28',
-      lastSeen: '2026-02-28T00:10:00Z',
-      pendingRewards: 250,
-      totalRewardsEarned: 1200
+      id: user?.member?.member_id || '',
+      displayName: user?.member?.display_name || '',
+      membershipStatus: user?.member?.membership_status || 'pending_payment' as const,
+      clawStatus: user?.member?.claw_status || 'offline' as const,
+      feePaidUntil: user?.member?.fee_paid_until || '',
+      lastSeen: user?.member?.last_seen || '',
+      pendingRewards: user?.member?.monthly_reward_pending || 0,
+      totalRewardsEarned: 0
     },
     stats: {
-      totalSignalsToday: 3,
-      successfulTrades: 12,
-      totalMembers: 147,
-      myReferrals: 5
+      totalSignalsToday: 0,
+      successfulTrades: 0,
+      totalMembers: 0,
+      myReferrals: 0
     },
-    recentMessages: [
-      {
-        id: '1',
-        type: 'trade_signal',
-        content: 'BTC/USD LONG シグナル配信',
-        timestamp: '2026-02-28T00:05:00Z',
-        status: 'completed'
-      },
-      {
-        id: '2', 
-        type: 'system_update',
-        content: 'CLAWシステムアップデート完了',
-        timestamp: '2026-02-27T22:30:00Z',
-        status: 'info'
-      },
-      {
-        id: '3',
-        type: 'reward_notify',
-        content: '2月分紹介報酬 $250 が確定しました',
-        timestamp: '2026-02-27T20:00:00Z',
-        status: 'success'
-      }
-    ],
-    upcomingSeminar: {
-      title: 'CLAW活用セミナー：応用編',
-      scheduledAt: '2026-03-01T10:00:00Z',
-      zoomUrl: 'https://zoom.us/j/example'
-    }
+    recentMessages: [],
+    upcomingSeminar: null
   })
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      try {
+        // API経由でデータを取得
+        const [statsData, messagesData, seminarsData, referralStats] = await Promise.all([
+          import('@/lib/api').then(api => api.getDashboardStats()),
+          import('@/lib/api').then(api => api.getRecentMessages()),
+          import('@/lib/api').then(api => api.getUpcomingSeminars()),
+          import('@/lib/api').then(api => api.getReferralStats())
+        ])
+
+        setDashboardData(prev => ({
+          ...prev,
+          stats: statsData,
+          recentMessages: messagesData,
+          upcomingSeminar: seminarsData[0] ? {
+            title: seminarsData[0].title,
+            scheduledAt: seminarsData[0].scheduledAt,
+            zoomUrl: seminarsData[0].zoomUrl
+          } : null,
+          member: {
+            ...prev.member,
+            totalRewardsEarned: referralStats.totalRewardsEarned,
+            pendingRewards: referralStats.pendingRewards
+          }
+        }))
+      } catch (error) {
+        console.error('Failed to load dashboard data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (user?.member) {
+      loadDashboardData()
+    } else {
+      setLoading(false)
+    }
+  }, [user])
 
   const daysUntilPayment = getDaysUntilPayment(dashboardData.member.feePaidUntil)
   
