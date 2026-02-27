@@ -75,7 +75,7 @@ export class MinaraService {
         Buffer.from(expectedSignature, 'hex'),
         Buffer.from(providedSignature, 'hex')
       )
-    } catch (error) {
+    } catch (error: any) {
       loggerHelpers.security.suspicious('Webhook signature verification failed', {
         error: error.message,
         signature
@@ -276,7 +276,7 @@ export class MinaraService {
     try {
       const response = await this.client.get('/health', { timeout: 5000 })
       return response.status === 200 && response.data.status === 'healthy'
-    } catch (error) {
+    } catch (error: any) {
       logger.error('MINARA health check failed', { error: error.message })
       return false
     }

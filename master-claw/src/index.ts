@@ -3,11 +3,11 @@
 import { config } from '@/config'
 import { logger, loggerHelpers } from '@/utils/logger'
 import { MasterClawServer } from '@/server'
-import { DatabaseService } from '@/services/database'
-import { MinaraService } from '@/services/minara'
 import { PaymentService } from '@/services/payment'
 import { NotificationService } from '@/services/notification'
 import { SchedulerService } from '@/services/scheduler'
+import type { DatabaseService } from '@/services/database'
+import type { MinaraService } from '@/services/minara'
 
 /**
  * OPEN CLAW マスター管理システム
@@ -127,29 +127,17 @@ class MasterClawApplication {
 
   // 依存サービスの初期化
   private async initializeServices(): Promise<{
-    db: DatabaseService
+    db: any // DatabaseService | MockDatabaseService
     minara: MinaraService
     notification: NotificationService
     payment: PaymentService
   }> {
     logger.info('Initializing services')
 
-    // データベース接続
-    const db = new DatabaseService()
-    const dbHealthy = await db.healthCheck()
-    if (!dbHealthy) {
-      throw new Error('Database connection failed')
-    }
-    logger.info('Database service initialized')
-
-    // MINARA API接続
-    const minara = new MinaraService()
-    const minaraHealthy = await minara.healthCheck()
-    if (!minaraHealthy) {
-      logger.warn('MINARA API health check failed - continuing with limited functionality')
-    }
-    logger.info('MINARA service initialized')
-
+    // サービスファクトリーを使用
+    const { initializeServices } = await import('./services')
+    const { db, minara } = await initializeServices()
+    
     // 通知サービス
     const notification = new NotificationService(db)
     logger.info('Notification service initialized')
@@ -273,7 +261,8 @@ async function main(): Promise<void> {
 
     case 'test-db':
       try {
-        const db = new DatabaseService()
+        const { createDatabaseService } = await import('./services')
+        const db = createDatabaseService()
         const healthy = await db.healthCheck()
         console.log(`Database connection: ${healthy ? 'OK' : 'FAILED'}`)
         process.exit(healthy ? 0 : 1)
@@ -284,7 +273,8 @@ async function main(): Promise<void> {
 
     case 'test-minara':
       try {
-        const minara = new MinaraService()
+        const { createMinaraService } = await import('./services')
+        const minara = createMinaraService()
         const healthy = await minara.healthCheck()
         console.log(`MINARA API connection: ${healthy ? 'OK' : 'FAILED'}`)
         process.exit(healthy ? 0 : 1)

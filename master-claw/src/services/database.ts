@@ -4,7 +4,7 @@ import { Member, PaymentWebhookData, RewardCalculation, SystemEvent } from '@/ty
 import { logger } from '@/utils/logger'
 
 export class DatabaseService {
-  private supabase: SupabaseClient
+  public supabase: SupabaseClient
 
   constructor() {
     this.supabase = createClient(

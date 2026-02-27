@@ -1,6 +1,7 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter, Noto_Sans_JP } from 'next/font/google'
+import { AuthProvider } from '@/components/auth/AuthProvider'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -62,9 +63,11 @@ export default function RootLayout({
   return (
     <html lang="ja" className={`${inter.variable} ${notoSansJP.variable}`}>
       <body className={`${inter.className} antialiased`}>
-        <div id="root" className="min-h-screen bg-gray-50">
-          {children}
-        </div>
+        <AuthProvider>
+          <div id="root" className="min-h-screen bg-gray-50">
+            {children}
+          </div>
+        </AuthProvider>
         
         {/* Toast通知用コンテナ */}
         <div id="toast-root" className="fixed top-4 right-4 z-50" />

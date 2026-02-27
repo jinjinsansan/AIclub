@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useAuth } from '@/components/auth/AuthProvider'
 import { 
   HomeIcon, 
   BookOpenIcon, 
@@ -38,17 +39,18 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [user, setUser] = useState({
-    displayName: '田中太郎', // TODO: 実際のユーザー情報を取得
-    membershipStatus: 'active' as const,
-    clawStatus: 'online' as const,
-    nextPaymentDue: '2026-03-28',
-    pendingRewards: 250
-  })
+  const { user: authUser, signOut } = useAuth()
+  
+  const user = {
+    displayName: authUser?.member?.display_name || 'メンバー',
+    membershipStatus: authUser?.member?.membership_status || 'pending_payment',
+    clawStatus: authUser?.member?.claw_status || 'offline',
+    nextPaymentDue: authUser?.member?.fee_paid_until || '',
+    pendingRewards: authUser?.member?.monthly_reward_pending || 0
+  }
 
-  const handleLogout = () => {
-    // TODO: Supabase signOut
-    console.log('Logout')
+  const handleLogout = async () => {
+    await signOut()
   }
 
   const getStatusColor = (status: string) => {

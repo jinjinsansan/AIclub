@@ -10,7 +10,13 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rm -rf dist"
   },
-  "keywords": ["openclaw", "master", "claw", "payment", "management"],
+  "keywords": [
+    "openclaw",
+    "master",
+    "claw",
+    "payment",
+    "management"
+  ],
   "author": "なみサポ協会",
   "license": "PROPRIETARY",
   "dependencies": {
@@ -22,6 +28,7 @@
     "express-rate-limit": "^8.2.1",
     "helmet": "^8.1.0",
     "node-cron": "^4.2.1",
+    "tsconfig-paths": "^4.2.0",
     "winston": "^3.19.0"
   },
   "devDependencies": {

@@ -30,18 +30,20 @@ export default function LoginPage() {
     setLoginError(null)
     
     try {
-      // TODO: Supabase Auth でのログイン処理
-      console.log('Login data:', data)
+      const { loginMember } = await import('@/lib/auth')
       
-      // 仮実装：2秒後にダッシュボードへリダイレクト
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      const result = await loginMember(data.email, data.password)
       
-      // TODO: 実際のダッシュボードへのリダイレクト
-      // router.push('/dashboard')
+      if (!result.success) {
+        throw new Error(result.error || 'ログインに失敗しました')
+      }
+      
+      // ログイン成功時はダッシュボードへリダイレクト
+      window.location.href = '/dashboard'
       
     } catch (error: any) {
       console.error('Login failed:', error)
-      setLoginError(error.message || 'ログインに失敗しました')
+      setLoginError(error.message)
     } finally {
       setIsSubmitting(false)
     }

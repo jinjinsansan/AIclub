@@ -49,16 +49,25 @@ export default function RegisterPage() {
     setIsSubmitting(true)
     
     try {
-      // TODO: API呼び出し - 仮登録処理
-      console.log('Registration data:', data)
+      const { registerMember } = await import('@/lib/auth')
       
-      // 仮実装：2秒後にメール送信ステップに移行
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      const result = await registerMember({
+        email: data.email,
+        password: 'temp_password_' + Math.random().toString(36), // 一時的なパスワード
+        displayName: data.displayName,
+        minaraWallet: data.minaraWallet,
+        referralCode: data.referralCode
+      })
+      
+      if (!result.success) {
+        throw new Error(result.error || '登録に失敗しました')
+      }
       
       setRegistrationStep('email_sent')
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration failed:', error)
-      // TODO: エラーハンドリング
+      // TODO: エラーメッセージの表示
+      alert(`登録エラー: ${error.message}`)
     } finally {
       setIsSubmitting(false)
     }

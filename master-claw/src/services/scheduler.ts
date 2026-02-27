@@ -62,7 +62,6 @@ export class SchedulerService {
       const task = cron.schedule(cronExpression, async () => {
         await this.executeJobWithErrorHandling(name, handler)
       }, {
-        scheduled: true,
         timezone: 'Asia/Tokyo'
       })
 

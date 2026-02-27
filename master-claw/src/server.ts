@@ -5,25 +5,34 @@ import rateLimit from 'express-rate-limit'
 import crypto from 'crypto'
 import { config } from '@/config'
 import { logger, loggerHelpers } from '@/utils/logger'
-import { DatabaseService } from '@/services/database'
-import { MinaraService } from '@/services/minara'
 import { PaymentService } from '@/services/payment'
 import { NotificationService } from '@/services/notification'
+import { createDatabaseService, createMinaraService } from '@/services'
 import { PaymentWebhookData, SystemStatus } from '@/types'
 
 export class MasterClawServer {
   private app: express.Application
-  private db: DatabaseService
-  private minara: MinaraService
-  private payment: PaymentService
-  private notification: NotificationService
+  private db?: any // DatabaseService | MockDatabaseService
+  private minara?: any // MinaraService  
+  private payment?: PaymentService
+  private notification?: NotificationService
 
   constructor() {
     this.app = express()
-    this.db = new DatabaseService()
-    this.minara = new MinaraService()
+    this.setupMiddleware()
+    this.setupRoutes()
+    this.setupErrorHandling()
+  }
+
+  public async initialize() {
+    // サービスの初期化
+    this.db = createDatabaseService()
+    this.minara = createMinaraService()
     this.notification = new NotificationService(this.db)
     this.payment = new PaymentService(this.db, this.minara, this.notification)
+    
+    logger.info('MasterClawServer services initialized')
+  }
 
     this.setupMiddleware()
     this.setupRoutes()
