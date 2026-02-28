@@ -1,0 +1,32 @@
+{
+  "name": "member-claw",
+  "version": "1.0.0",
+  "description": "OPEN CLAW メンバーCLAWテンプレート - 各メンバー環境で実行",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "clean": "rm -rf dist",
+    "setup": "cp config.template.json config.json && cp .env.example .env && echo 'Setup complete. Edit config.json and .env with your values.'"
+  },
+  "keywords": [
+    "openclaw",
+    "member",
+    "claw",
+    "trade",
+    "minara"
+  ],
+  "author": "OPEN CLAW",
+  "license": "PROPRIETARY",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.98.0",
+    "axios": "^1.13.5",
+    "dotenv": "^17.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}

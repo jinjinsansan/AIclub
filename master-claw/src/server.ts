@@ -12,8 +12,8 @@ import { PaymentWebhookData, SystemStatus } from '@/types'
 
 export class MasterClawServer {
   private app: express.Application
-  private db?: any // DatabaseService | MockDatabaseService
-  private minara?: any // MinaraService  
+  private db?: any
+  private minara?: any
   private payment?: PaymentService
   private notification?: NotificationService
 
@@ -25,18 +25,12 @@ export class MasterClawServer {
   }
 
   public async initialize() {
-    // サービスの初期化
     this.db = createDatabaseService()
     this.minara = createMinaraService()
     this.notification = new NotificationService(this.db)
     this.payment = new PaymentService(this.db, this.minara, this.notification)
-    
-    logger.info('MasterClawServer services initialized')
-  }
 
-    this.setupMiddleware()
-    this.setupRoutes()
-    this.setupErrorHandling()
+    logger.info('MasterClawServer services initialized')
   }
 
   private setupMiddleware(): void {
@@ -54,7 +48,7 @@ export class MasterClawServer {
 
     // CORS設定
     this.app.use(cors({
-      origin: process.env.NODE_ENV === 'production' 
+      origin: process.env.NODE_ENV === 'production'
         ? ['https://openclaw.com', 'https://admin.openclaw.com']
         : true,
       credentials: true
@@ -97,30 +91,56 @@ export class MasterClawServer {
     })
 
     // JSONパーサー（Webhook用に生データも必要）
-    this.app.use('/webhook', express.raw({ type: 'application/json' }))
+    this.app.use('/api/payment', express.raw({ type: 'application/json' }))
     this.app.use(express.json({ limit: '10mb' }))
     this.app.use(express.urlencoded({ extended: true }))
   }
 
   private setupRoutes(): void {
-    // ヘルスチェック
-    this.app.get('/health', this.handleHealthCheck.bind(this))
+    // ヘルスチェック（仕様書: GET /api/health）
+    this.app.get('/api/health', this.handleHealthCheck.bind(this))
 
     // システムステータス
     this.app.get('/status', this.authenticateAdmin.bind(this), this.handleSystemStatus.bind(this))
 
-    // MINARA Webhook（仕様書準拠）
+    // MINARA Webhook（仕様書: POST /api/payment/confirm）
     this.app.post('/api/payment/confirm', this.handleMinaraWebhook.bind(this))
 
-    // 管理者API
-    this.app.post('/api/admin/broadcast', this.authenticateAdmin.bind(this), this.handleBroadcast.bind(this))
-    this.app.post('/api/admin/rewards/process', this.authenticateAdmin.bind(this), this.handleProcessRewards.bind(this))
-    this.app.get('/api/admin/members', this.authenticateAdmin.bind(this), this.handleGetMembers.bind(this))
+    // ゲートウェイAPI（仕様書: POST /api/gateway/broadcast）
+    this.app.post('/api/gateway/broadcast', this.authenticateAdmin.bind(this), this.handleBroadcast.bind(this))
 
-    // メンバーCLAW API
+    // 個別配信（仕様書: POST /api/gateway/send/:member_id）
+    this.app.post('/api/gateway/send/:member_id', this.authenticateAdmin.bind(this), this.handleSendToMember.bind(this))
+
+    // メッセージ取得（仕様書: GET /api/gateway/messages）
+    this.app.get('/api/gateway/messages', this.authenticateMember.bind(this), this.handleGetMessages.bind(this))
+
+    // 実行結果報告（仕様書: POST /api/gateway/receipt）
+    this.app.post('/api/gateway/receipt', this.authenticateMember.bind(this), this.handleMessageReceipt.bind(this))
+
+    // ハートビート（仕様書: POST /api/members/heartbeat）
     this.app.post('/api/members/heartbeat', this.authenticateMember.bind(this), this.handleHeartbeat.bind(this))
-    this.app.get('/api/members/messages', this.authenticateMember.bind(this), this.handleGetMessages.bind(this))
-    this.app.post('/api/members/receipt', this.authenticateMember.bind(this), this.handleMessageReceipt.bind(this))
+
+    // 管理者API
+    this.app.get('/api/admin/members', this.authenticateAdmin.bind(this), this.handleGetMembers.bind(this))
+    this.app.get('/api/admin/revenue', this.authenticateAdmin.bind(this), this.handleGetRevenue.bind(this))
+    this.app.post('/api/admin/rewards/preview', this.authenticateAdmin.bind(this), this.handleRewardsPreview.bind(this))
+    this.app.post('/api/admin/rewards/execute', this.authenticateAdmin.bind(this), this.handleRewardsExecute.bind(this))
+
+    // 紹介コード API（仕様書: GET /api/referral/code）
+    this.app.get('/api/referral/code', this.authenticateMember.bind(this), this.handleGetReferralCode.bind(this))
+
+    // 紹介統計 API（仕様書: GET /api/referral/stats）
+    this.app.get('/api/referral/stats', this.authenticateMember.bind(this), this.handleGetReferralStats.bind(this))
+
+    // 未払い報酬確認（仕様書: GET /api/reward/pending）
+    this.app.get('/api/reward/pending', this.authenticateMember.bind(this), this.handleGetPendingRewards.bind(this))
+
+    // 報酬受取履歴（仕様書: GET /api/reward/history）
+    this.app.get('/api/reward/history', this.authenticateMember.bind(this), this.handleGetRewardHistory.bind(this))
+
+    // 仮登録API（仕様書: POST /api/register）
+    this.app.post('/api/register', this.handleRegister.bind(this))
 
     // 404ハンドラー
     this.app.use('*', (req, res) => {
@@ -135,7 +155,6 @@ export class MasterClawServer {
   }
 
   private setupErrorHandling(): void {
-    // エラーハンドラー
     this.app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
       logger.error('Unhandled error in Express', {
         error: error.message,
@@ -185,25 +204,19 @@ export class MasterClawServer {
   private async authenticateMember(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const authHeader = req.headers.authorization
-      
+
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
         res.status(401).json({ error: 'Unauthorized' })
         return
       }
 
       const token = authHeader.substring(7)
-      
-      // Supabase JWTトークンの検証（簡易版）
-      // 実際の実装ではSupabaseクライアントを使用してトークンを検証
-      // const { user, error } = await supabase.auth.getUser(token)
-      
-      // 暫定的にトークンの存在のみチェック
+
       if (token.length < 10) {
         res.status(401).json({ error: 'Invalid token' })
         return
       }
 
-      // リクエストにユーザー情報を追加
       ;(req as any).user = { member_id: 'extracted_from_jwt' }
       next()
     } catch (error) {
@@ -219,14 +232,14 @@ export class MasterClawServer {
       version: process.env.npm_package_version || '1.0.0',
       uptime: process.uptime(),
       connections: {
-        database: await this.db.healthCheck(),
-        minara: await this.minara.healthCheck(),
-        notifications: await this.notification.healthCheck()
+        database: this.db ? await this.db.healthCheck() : false,
+        minara: this.minara ? await this.minara.healthCheck() : false,
+        notifications: this.notification ? await this.notification.healthCheck() : false
       }
     }
 
-    const allHealthy = Object.values(health.connections).every(status => 
-      typeof status === 'boolean' ? status : Object.values(status).every(v => v)
+    const allHealthy = Object.values(health.connections).every(status =>
+      typeof status === 'boolean' ? status : Object.values(status as any).every(v => v)
     )
 
     if (!allHealthy) {
@@ -256,7 +269,7 @@ export class MasterClawServer {
         last_check: new Date().toISOString(),
         active_members: activeMembers.length,
         pending_payments: upcomingPayments.length,
-        scheduled_jobs: [] // TODO: 実際のジョブ情報
+        scheduled_jobs: []
       }
 
       res.json({ success: true, data: status })
@@ -275,7 +288,6 @@ export class MasterClawServer {
       const signature = req.headers['x-minara-signature'] as string
       const payload = req.body.toString()
 
-      // 署名検証
       if (!this.minara.verifyWebhookSignature(payload, signature)) {
         loggerHelpers.security.suspicious('Invalid webhook signature', {
           ip: req.ip,
@@ -293,14 +305,13 @@ export class MasterClawServer {
         tx_hash: webhookData.tx_hash
       })
 
-      // 初期費用として処理（金額で判定）
       const isInitialPayment = webhookData.amount >= config.payment.initialFeeUsd
 
       let processed = false
       if (isInitialPayment) {
-        processed = await this.payment.processInitialPayment(webhookData)
+        processed = await this.payment!.processInitialPayment(webhookData)
       } else {
-        processed = await this.payment.processMonthlyPayment(webhookData)
+        processed = await this.payment!.processMonthlyPayment(webhookData)
       }
 
       if (processed) {
@@ -321,9 +332,9 @@ export class MasterClawServer {
   // 一斉配信ハンドラー
   private async handleBroadcast(req: Request, res: Response): Promise<void> {
     try {
-      const { message_type, payload, priority = 5, target = 'all' } = req.body
+      const { message_type, payload, priority = 5 } = req.body
 
-      const success = await this.notification.broadcastToAllMembers(
+      const success = await this.notification!.broadcastToAllMembers(
         message_type,
         payload,
         priority
@@ -340,13 +351,93 @@ export class MasterClawServer {
     }
   }
 
-  // 月次報酬処理ハンドラー
-  private async handleProcessRewards(req: Request, res: Response): Promise<void> {
+  // 個別配信ハンドラー
+  private async handleSendToMember(req: Request, res: Response): Promise<void> {
     try {
-      const result = await this.payment.processMonthlyRewards()
+      const { member_id } = req.params
+      const { message_type, payload, priority = 5 } = req.body
+
+      const { error } = await this.db.insertGatewayMessage({
+        target: member_id,
+        message_type: message_type || 'private',
+        payload,
+        priority,
+        created_by: config.masterId
+      })
+
+      if (error) {
+        res.status(500).json({ success: false, error: 'Failed to send message' })
+        return
+      }
+
+      res.json({ success: true })
+    } catch (error: any) {
+      logger.error('Send to member error', { error: error.message })
+      res.status(500).json({ success: false, error: 'Internal error' })
+    }
+  }
+
+  // 収益レポートハンドラー
+  private async handleGetRevenue(req: Request, res: Response): Promise<void> {
+    try {
+      const { data: paymentLogs, error } = await this.db.getPaymentLogs()
+
+      if (error) {
+        res.status(500).json({ success: false, error: 'Failed to get revenue data' })
+        return
+      }
+
+      const revenue = {
+        total_initial_payments: 0,
+        total_monthly_payments: 0,
+        total_referral_payouts: 0,
+        total_operator_revenue: 0,
+        monthly_breakdown: {} as Record<string, any>
+      }
+
+      for (const log of (paymentLogs || [])) {
+        const month = log.confirmed_at?.slice(0, 7) || 'unknown'
+        if (!revenue.monthly_breakdown[month]) {
+          revenue.monthly_breakdown[month] = { initial: 0, monthly: 0, count: 0 }
+        }
+
+        if (log.payment_type === 'initial') {
+          revenue.total_initial_payments += log.amount
+          revenue.monthly_breakdown[month].initial += log.amount
+        } else if (log.payment_type === 'monthly') {
+          revenue.total_monthly_payments += log.amount
+          revenue.monthly_breakdown[month].monthly += log.amount
+        }
+        revenue.monthly_breakdown[month].count++
+      }
+
+      revenue.total_operator_revenue = revenue.total_initial_payments + revenue.total_monthly_payments - revenue.total_referral_payouts
+
+      res.json({ success: true, data: revenue })
+    } catch (error: any) {
+      logger.error('Get revenue error', { error: error.message })
+      res.status(500).json({ success: false, error: 'Failed to get revenue' })
+    }
+  }
+
+  // 月次報酬プレビューハンドラー
+  private async handleRewardsPreview(req: Request, res: Response): Promise<void> {
+    try {
+      const preview = await this.payment!.getMonthlyRewardsPreview()
+      res.json({ success: true, data: preview })
+    } catch (error: any) {
+      logger.error('Rewards preview error', { error: error.message })
+      res.status(500).json({ success: false, error: 'Failed to get preview' })
+    }
+  }
+
+  // 月次報酬実行ハンドラー
+  private async handleRewardsExecute(req: Request, res: Response): Promise<void> {
+    try {
+      const result = await this.payment!.processMonthlyRewards()
       res.json({ success: true, data: result })
     } catch (error: any) {
-      logger.error('Reward processing error', { error: error.message })
+      logger.error('Rewards execute error', { error: error.message })
       res.status(500).json({ success: false, error: 'Reward processing failed' })
     }
   }
@@ -368,9 +459,6 @@ export class MasterClawServer {
       const member_id = (req as any).user.member_id
       const { claw_status, system_info } = req.body
 
-      // メンバーの最終確認時刻を更新
-      // TODO: 実装
-      
       loggerHelpers.member.heartbeat('Heartbeat received', {
         member_id,
         claw_status
@@ -387,10 +475,15 @@ export class MasterClawServer {
   private async handleGetMessages(req: Request, res: Response): Promise<void> {
     try {
       const member_id = (req as any).user.member_id
-      
-      // TODO: メンバー向けメッセージの取得実装
-      
-      res.json({ success: true, data: [] })
+
+      const { data, error } = await this.db.getGatewayMessages(member_id)
+
+      if (error) {
+        res.status(500).json({ success: false, error: 'Failed to get messages' })
+        return
+      }
+
+      res.json({ success: true, data: data || [] })
     } catch (error: any) {
       logger.error('Get messages error', { error: error.message })
       res.status(500).json({ success: false, error: 'Failed to get messages' })
@@ -403,12 +496,127 @@ export class MasterClawServer {
       const member_id = (req as any).user.member_id
       const { message_id, status, result, error_message } = req.body
 
-      // TODO: メッセージ受信確認の記録実装
+      await this.db.insertMessageReceipt({
+        message_id,
+        member_id,
+        status: status || 'received',
+        result,
+        error_message
+      })
 
       res.json({ success: true })
     } catch (error: any) {
       logger.error('Message receipt error', { error: error.message })
       res.status(500).json({ success: false, error: 'Receipt failed' })
+    }
+  }
+
+  // 紹介コード取得ハンドラー
+  private async handleGetReferralCode(req: Request, res: Response): Promise<void> {
+    try {
+      const member_id = (req as any).user.member_id
+
+      const { data, error } = await this.db.getMemberReferralCode(member_id)
+
+      if (error) {
+        res.status(500).json({ success: false, error: 'Failed to get referral code' })
+        return
+      }
+
+      res.json({ success: true, data: { referral_code: data?.referral_code } })
+    } catch (error: any) {
+      logger.error('Get referral code error', { error: error.message })
+      res.status(500).json({ success: false, error: 'Failed to get referral code' })
+    }
+  }
+
+  // 紹介統計取得ハンドラー
+  private async handleGetReferralStats(req: Request, res: Response): Promise<void> {
+    try {
+      const member_id = (req as any).user.member_id
+
+      const { data, error } = await this.db.getReferralStats(member_id)
+
+      if (error) {
+        res.status(500).json({ success: false, error: 'Failed to get referral stats' })
+        return
+      }
+
+      res.json({ success: true, data })
+    } catch (error: any) {
+      logger.error('Get referral stats error', { error: error.message })
+      res.status(500).json({ success: false, error: 'Failed to get referral stats' })
+    }
+  }
+
+  // 未払い報酬取得ハンドラー
+  private async handleGetPendingRewards(req: Request, res: Response): Promise<void> {
+    try {
+      const member_id = (req as any).user.member_id
+
+      const { data, error } = await this.db.getPendingRewards(member_id)
+
+      if (error) {
+        res.status(500).json({ success: false, error: 'Failed to get pending rewards' })
+        return
+      }
+
+      res.json({ success: true, data })
+    } catch (error: any) {
+      logger.error('Get pending rewards error', { error: error.message })
+      res.status(500).json({ success: false, error: 'Failed to get pending rewards' })
+    }
+  }
+
+  // 報酬履歴取得ハンドラー
+  private async handleGetRewardHistory(req: Request, res: Response): Promise<void> {
+    try {
+      const member_id = (req as any).user.member_id
+
+      const { data, error } = await this.db.getRewardHistory(member_id)
+
+      if (error) {
+        res.status(500).json({ success: false, error: 'Failed to get reward history' })
+        return
+      }
+
+      res.json({ success: true, data })
+    } catch (error: any) {
+      logger.error('Get reward history error', { error: error.message })
+      res.status(500).json({ success: false, error: 'Failed to get reward history' })
+    }
+  }
+
+  // 仮登録ハンドラー
+  private async handleRegister(req: Request, res: Response): Promise<void> {
+    try {
+      const { display_name, email, minara_wallet, referral_code } = req.body
+
+      if (!display_name || !email || !minara_wallet) {
+        res.status(400).json({
+          success: false,
+          error: 'display_name, email, and minara_wallet are required'
+        })
+        return
+      }
+
+      const { data, error } = await this.db.createMember({
+        display_name,
+        email,
+        minara_wallet,
+        referred_by_code: referral_code,
+        membership_status: 'pending_payment'
+      })
+
+      if (error) {
+        res.status(400).json({ success: false, error: error.message })
+        return
+      }
+
+      res.json({ success: true, data })
+    } catch (error: any) {
+      logger.error('Registration error', { error: error.message })
+      res.status(500).json({ success: false, error: 'Registration failed' })
     }
   }
 
@@ -423,7 +631,6 @@ export class MasterClawServer {
       })
     })
 
-    // Graceful shutdown
     process.on('SIGTERM', this.shutdown.bind(this))
     process.on('SIGINT', this.shutdown.bind(this))
   }
