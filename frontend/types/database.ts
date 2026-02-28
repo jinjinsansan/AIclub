@@ -195,6 +195,71 @@ export interface NotificationLog {
   created_at: string
 }
 
+// Phase 5: Gateway接続管理
+export interface GatewayConnection {
+  id: string
+  member_id: string
+  connection_token: string
+  gateway_session_id?: string
+  status: 'offline' | 'connecting' | 'online' | 'error'
+  last_ping?: string
+  ip_address?: string
+  user_agent?: string
+  connected_at?: string
+  disconnected_at?: string
+  created_at: string
+}
+
+// Phase 5: CLAW間チャットログ
+export interface CLAWChatLog {
+  id: string
+  channel_name: string
+  sender_member_id: string
+  sender_name?: string
+  message_type: 'text' | 'file' | 'image' | 'system'
+  content: string
+  metadata?: any
+  sent_at: string
+  delivered_to?: string[]
+  read_by?: Record<string, string>
+}
+
+// Phase 5: メンバーCLAW設定
+export interface MemberCLAWConfig {
+  id: string
+  member_id: string
+  claw_version?: string
+  capabilities: Record<string, any>
+  current_config?: any
+  gateway_preferences: Record<string, any>
+  last_config_update: string
+  created_at: string
+}
+
+// Phase 5: CLAW接続状況 (管理画面用)
+export interface CLAWStatus {
+  member_id: string
+  display_name: string
+  membership_status: string
+  status: 'online' | 'offline' | 'error'
+  last_ping: string
+  ip_address?: string
+  connected_at?: string
+  version: string
+  capabilities: string[]
+}
+
+// Phase 5: チャットメッセージ (リアルタイム用)
+export interface ChatMessage {
+  id: string
+  channel: string
+  sender_member_id: string
+  sender_name: string
+  content: string
+  sent_at: string
+  message_type: 'text' | 'file' | 'system'
+}
+
 // API レスポンス型
 export interface ApiResponse<T = any> {
   success: boolean

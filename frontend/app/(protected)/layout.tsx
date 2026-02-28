@@ -16,7 +16,8 @@ import {
   XMarkIcon,
   ArrowRightOnRectangleIcon,
   ChartBarIcon,
-  WifiIcon
+  WifiIcon,
+  CommandLineIcon,
 } from '@heroicons/react/24/outline'
 import { cn } from '@/lib/utils'
 
@@ -25,6 +26,7 @@ const navigation = [
   { name: 'マニュアル', href: '/manual', icon: BookOpenIcon },
   { name: 'セミナー', href: '/seminar', icon: VideoCameraIcon },
   { name: 'CLAW接続', href: '/claw-connect', icon: WifiIcon },
+  { name: 'CLAW Studio', href: '/claw-studio', icon: CommandLineIcon },
   { name: 'MINARA連携', href: '/minara', icon: ChartBarIcon },
   { name: '紹介コード', href: '/referral', icon: ShareIcon },
   { name: '通知', href: '/notifications', icon: BellIcon },

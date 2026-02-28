@@ -1,0 +1,46 @@
+{
+  "server": {
+    "port": 18789,
+    "host": "0.0.0.0",
+    "ssl": {
+      "cert": "/etc/ssl/openclaw/gateway.crt",
+      "key": "/etc/ssl/openclaw/gateway.key"
+    }
+  },
+  "authentication": {
+    "supabase_url": "https://[project].supabase.co",
+    "supabase_service_key": "[SERVICE_ROLE_KEY]",
+    "token_expiry": "24h"
+  },
+  "permissions": {
+    "member_claw": {
+      "can_chat": true,
+      "can_broadcast": false,
+      "can_manage_others": false
+    },
+    "master_claw": {
+      "can_chat": true,
+      "can_broadcast": true,
+      "can_manage_others": true,
+      "can_admin": true
+    }
+  },
+  "channels": {
+    "general": {
+      "name": "全体チャット",
+      "access": "active_members"
+    },
+    "trading": {
+      "name": "トレード情報",
+      "access": "active_members"
+    },
+    "alerts": {
+      "name": "アラート",
+      "access": "master_only"
+    }
+  },
+  "rate_limit": {
+    "messages_per_minute": 10,
+    "connections_per_ip": 5
+  }
+}

@@ -6,6 +6,12 @@
     "anon_key": "REPLACE_WITH_SUPABASE_ANON_KEY",
     "channel": "claw_gateway"
   },
+  "studio_gateway": {
+    "url": "wss://gateway.openclaw.community:18789",
+    "auth_token": "REPLACE_WITH_GATEWAY_TOKEN",
+    "auto_reconnect": true,
+    "channels": ["general", "trading"]
+  },
   "minara": {
     "api_endpoint": "https://api.minara.ai/v1",
     "api_key": "REPLACE_WITH_YOUR_MINARA_API_KEY",
