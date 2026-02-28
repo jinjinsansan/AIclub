@@ -74,7 +74,13 @@ export default function ReferralsPage() {
             { month: '2025-12', amount: 200, status: 'paid' }
           ]
         })
-        setHistory(historyData)
+
+        const normalizedHistory = (historyData || []).map((item: any) => ({
+          ...item,
+          createdAt: item.createdAt ?? item.paidAt ?? new Date().toISOString()
+        }))
+
+        setHistory(normalizedHistory)
       } catch (error) {
         console.error('Failed to load referral data:', error)
       } finally {

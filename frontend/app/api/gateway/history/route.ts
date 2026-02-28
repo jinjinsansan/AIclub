@@ -7,6 +7,8 @@ const supabase = createClient(
   { auth: { autoRefreshToken: false, persistSession: false } }
 )
 
+export const dynamic = 'force-dynamic'
+
 /**
  * チャット履歴取得 API
  *
@@ -62,7 +64,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 送信者の表示名を取得
-    const senderIds = [...new Set(messages?.map((m) => m.sender_member_id) || [])]
+    const senderIds = Array.from(new Set((messages || []).map((m) => m.sender_member_id)))
     const { data: members } = await supabase
       .from('members')
       .select('member_id, display_name')

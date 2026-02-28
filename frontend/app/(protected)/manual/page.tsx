@@ -9,7 +9,7 @@ import {
   DocumentTextIcon,
   CheckCircleIcon,
   LockClosedIcon,
-  DownloadIcon,
+  ArrowDownTrayIcon,
   EyeIcon,
   ClockIcon
 } from '@heroicons/react/24/outline'
@@ -173,7 +173,7 @@ export default function ManualPage() {
       case 'pdf':
         return DocumentTextIcon
       case 'zip':
-        return DownloadIcon
+        return ArrowDownTrayIcon
       default:
         return BookOpenIcon
     }
@@ -333,7 +333,7 @@ export default function ManualPage() {
                       </button>
                       {manual.file_url && (
                         <button className="btn-secondary text-sm flex items-center">
-                          <DownloadIcon className="h-4 w-4 mr-1" />
+                          <ArrowDownTrayIcon className="h-4 w-4 mr-1" />
                           ダウンロード
                         </button>
                       )}

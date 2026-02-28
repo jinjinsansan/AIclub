@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
     }
 
     // メンバー情報とCLAW設定を取得
-    const memberIds = [...new Set(connections?.map((c) => c.member_id) || [])]
+    const memberIds = Array.from(new Set((connections || []).map((c) => c.member_id)))
 
     const [membersResult, configsResult] = await Promise.all([
       supabase
