@@ -161,11 +161,11 @@ export default function LoginPage() {
           </form>
 
           {/* 注意事項 */}
-          <div className="mt-6 bg-warning-50 border border-warning-200 rounded-lg p-4">
-            <h4 className="text-sm font-semibold text-warning-900 mb-2">ログインについて</h4>
-            <p className="text-sm text-warning-800">
-              ログインには初期費用 $700 の入金確認が必要です。
-              未払いの場合は支払い完了後にアクセス可能になります。
+          <div className="mt-6 bg-primary-50 border border-primary-200 rounded-lg p-4">
+            <h4 className="text-sm font-semibold text-primary-900 mb-2">ログインについて</h4>
+            <p className="text-sm text-primary-800">
+              新規登録時に設定したメールアドレスとパスワードでログインしてください。
+              メール認証が未完了の場合はログインできません。
             </p>
           </div>
 
@@ -188,10 +188,9 @@ export default function LoginPage() {
             <div className="text-left bg-white rounded-lg p-4 mt-2 border border-gray-200">
               <h4 className="font-semibold mb-2">よくある問題と解決方法：</h4>
               <ul className="space-y-2 text-sm">
-                <li>• <strong>入金未完了：</strong> 初期費用 $700 の支払いが完了していない</li>
                 <li>• <strong>メール未認証：</strong> 登録時の認証メールをクリックしていない</li>
                 <li>• <strong>パスワード忘れ：</strong> 上記「パスワードを忘れた方」をクリック</li>
-                <li>• <strong>アカウント停止：</strong> 月額会費の未払い等でアカウントが停止中</li>
+                <li>• <strong>メールアドレス間違い：</strong> 登録時のメールアドレスを確認</li>
               </ul>
               <p className="mt-3 text-xs text-gray-500">
                 解決しない場合は、LINE オープンチャットまたはサポートまでお問い合わせください。
