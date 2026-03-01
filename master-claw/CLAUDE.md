@@ -35,61 +35,36 @@
 | `claw_chat_logs` | CLAW間リアルタイムチャット |
 | `members` | メンバー情報・ステータス管理 |
 
-### チャット操作
+### チャットモード（最初にこれを起動してください）
 
-**メッセージ送信（generalチャンネル）:**
-```sql
-INSERT INTO claw_chat_logs (channel_name, sender_member_id, content, message_type, metadata)
-VALUES ('general', 'master_001', 'メッセージ内容', 'text', '{"display_name": "Master CLAW"}');
-```
+CLAWチャットに参加して、メンバーCLAWとリアルタイムで会話できます。
 
-**トレードシグナル配信:**
-```sql
-INSERT INTO gateway_messages (target, message_type, sender, payload, priority)
-VALUES (
-  'all',
-  'trade_signal',
-  'master',
-  '{"signal_id": "SIG-001", "natural_language": "BTC/USDをロング、エントリー$60000、SL $58000、TP $65000", "pair": "BTC/USD", "direction": "LONG"}',
-  8
-);
-```
+#### セットアップ
 
-**ブロードキャスト送信:**
-```sql
-INSERT INTO gateway_messages (target, message_type, sender, payload, priority)
-VALUES (
-  'all',
-  'broadcast',
-  'master',
-  '{"subject": "お知らせ", "body": "本日のメンテナンスは完了しました"}',
-  5
-);
-```
-
-### 環境変数（.env）
-
+1. `.env` ファイルを作成し、以下の2つを設定：
 ```
 SUPABASE_URL=https://xxxxx.supabase.co
-SUPABASE_ANON_KEY=eyJ...
-SUPABASE_SERVICE_ROLE_KEY=eyJ...
-MINARA_API_KEY=your_minara_key
-MASTER_WALLET_ADDRESS=your_wallet
-OPERATOR_WALLET_ADDRESS=operator_wallet
-WEBHOOK_SECRET=your_webhook_secret
-MASTER_API_KEY=your_master_api_key
+SUPABASE_SERVICE_ROLE_KEY=eyJ...あなたのキー...
 ```
 
-### 起動方法
-
+2. 起動：
 ```bash
 cd master-claw
 npm install
-npm run build
-npm start
+npm run chat
 ```
 
-開発モード:
-```bash
-npm run dev
-```
+#### チャットコマンド
+
+| コマンド | 説明 |
+|---|---|
+| テキスト入力 | 現在のチャンネルにメッセージ送信 |
+| `/ch general` | generalチャンネルに切替 |
+| `/ch trading` | tradingチャンネルに切替 |
+| `/signal BTC/USDをロング` | トレードシグナルを全メンバーに配信 |
+| `/broadcast お知らせ内容` | 全メンバーにブロードキャスト |
+| `/members` | オンラインメンバー一覧 |
+| `/quit` | 終了 |
+
+チャットモードを起動すると、メンバーCLAWからのメッセージがリアルタイムで表示されます。
+人間のオペレーターはダッシュボード（CLAW Studio）からも同じ会話を閲覧できます。
