@@ -13,7 +13,10 @@ import {
   WifiIcon,
   ExclamationTriangleIcon,
   ArrowRightIcon,
-  ChartBarSquareIcon
+  ChartBarSquareIcon,
+  MegaphoneIcon,
+  ClipboardDocumentIcon,
+  ClipboardDocumentCheckIcon
 } from '@heroicons/react/24/outline'
 import { formatCurrency, getDaysUntilPayment, getRelativeTime } from '@/lib/utils'
 
@@ -40,6 +43,8 @@ export default function DashboardPage() {
     upcomingSeminar: null as any
   })
   const [loading, setLoading] = useState(true)
+  const [masterInstructions, setMasterInstructions] = useState<any[]>([])
+  const [copiedId, setCopiedId] = useState<string | null>(null)
 
   useEffect(() => {
     const loadDashboardData = async () => {
@@ -75,10 +80,43 @@ export default function DashboardPage() {
 
     if (user?.member) {
       loadDashboardData()
+      // Master CLAWからの指示を取得
+      import('@/lib/api').then(api => api.getRecentMessages(10)).then(msgs => {
+        setMasterInstructions(msgs.filter((m: any) => m.type === 'broadcast' || m.type === 'update' || m.type === 'trade_signal'))
+      })
     } else {
       setLoading(false)
     }
   }, [user])
+
+  const buildClawInstruction = (instruction: any) => {
+    return `Master CLAWから以下の指示が届いています。内容を確認して実行してください。
+
+【指示内容】
+${instruction.content}
+
+【実行手順】
+1. 上記の指示を読んで理解してください
+2. 必要に応じてGitHubリポジトリを再確認してください: https://github.com/jinjinsansan/AIclub/tree/main/member-claw
+3. 指示に従って行動してください
+4. 完了したら主人（私）に報告してください`
+  }
+
+  const copyInstruction = async (instruction: any) => {
+    const text = buildClawInstruction(instruction)
+    try {
+      await navigator.clipboard.writeText(text)
+    } catch {
+      const textarea = document.createElement('textarea')
+      textarea.value = text
+      document.body.appendChild(textarea)
+      textarea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textarea)
+    }
+    setCopiedId(instruction.id)
+    setTimeout(() => setCopiedId(null), 2000)
+  }
 
   const downloadConfigTemplate = async () => {
     try {
@@ -218,6 +256,53 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
+          {/* Master CLAWからの指示 */}
+          {masterInstructions.length > 0 && (
+            <div className="card border-2 border-secondary-300 bg-gradient-to-r from-secondary-50 to-primary-50">
+              <div className="flex items-center mb-4">
+                <MegaphoneIcon className="h-6 w-6 text-secondary-600 mr-2" />
+                <h3 className="text-lg font-semibold text-gray-900">Master CLAWからの指示</h3>
+              </div>
+              <p className="text-sm text-gray-600 mb-4">
+                以下の指示をコピーして、あなたのCLAWに貼り付けてください。CLAWが自動で実行します。
+              </p>
+              <div className="space-y-3">
+                {masterInstructions.map((instruction) => (
+                  <div key={instruction.id} className="bg-white border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 mr-3">
+                        <p className="text-sm font-medium text-gray-900">{instruction.content}</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {new Date(instruction.timestamp).toLocaleString('ja-JP')}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => copyInstruction(instruction)}
+                        className={`flex-shrink-0 px-3 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center ${
+                          copiedId === instruction.id
+                            ? 'bg-success-500 text-white'
+                            : 'bg-secondary-600 text-white hover:bg-secondary-700'
+                        }`}
+                      >
+                        {copiedId === instruction.id ? (
+                          <>
+                            <ClipboardDocumentCheckIcon className="h-4 w-4 mr-1" />
+                            コピー済
+                          </>
+                        ) : (
+                          <>
+                            <ClipboardDocumentIcon className="h-4 w-4 mr-1" />
+                            CLAWに渡す
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="card">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">最新の通知</h3>
