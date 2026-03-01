@@ -40,6 +40,8 @@ cp config.template.json config.json
 | フィールド | 説明 | 確認場所 |
 |---|---|---|
 | `member_id` | あなたのメンバーID（UUID） | OPEN CLAW ダッシュボード → CLAW接続管理 |
+| `auth.email` | OPEN CLAWに登録したメールアドレス | 登録時に入力したもの |
+| `auth.password` | OPEN CLAWのパスワード | 登録時に設定したもの |
 | `gateway.url` | Supabase プロジェクトURL | 運営から共有 |
 | `gateway.anon_key` | Supabase Anon Key | 運営から共有 |
 | `minara.api_key` | MINARA APIキー | MINARA ダッシュボード |
@@ -51,6 +53,10 @@ cp config.template.json config.json
 {
   "role": "member",
   "member_id": "あなたのメンバーID",
+  "auth": {
+    "email": "あなたのメールアドレス",
+    "password": "あなたのパスワード"
+  },
   "gateway": {
     "url": "https://xxxxx.supabase.co",
     "anon_key": "eyJhbGciOi...",

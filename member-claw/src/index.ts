@@ -27,6 +27,10 @@ import { GatewayClient, GatewayMessage } from './services/gateway-client';
 interface MemberClawConfig {
   role: string;
   member_id: string;
+  auth: {
+    email: string;
+    password: string;
+  };
   gateway: {
     url: string;
     anon_key: string;
@@ -90,13 +94,16 @@ class MemberClawApplication {
       // 2. サービスクライアントの初期化
       this.initializeClients();
 
-      // 3. メンバーシップの確認
+      // 3. Supabase 認証（Realtime受信に必要）
+      await this.authenticate();
+
+      // 4. メンバーシップの確認
       await this.verifyMembership();
 
-      // 4. Supabase Realtime 接続
+      // 5. Supabase Realtime 接続
       await this.connectToGateway();
 
-      // 5. ハートビート開始
+      // 6. ハートビート開始
       this.startHeartbeat();
 
       console.log('============================================');
@@ -139,6 +146,12 @@ class MemberClawApplication {
     if (!this.config.gateway.anon_key || this.config.gateway.anon_key === 'REPLACE_WITH_SUPABASE_ANON_KEY') {
       throw new Error('gateway.anon_key is not configured in config.json');
     }
+    if (!this.config.auth?.email || this.config.auth.email === 'REPLACE_WITH_YOUR_EMAIL') {
+      throw new Error('auth.email is not configured in config.json');
+    }
+    if (!this.config.auth?.password || this.config.auth.password === 'REPLACE_WITH_YOUR_PASSWORD') {
+      throw new Error('auth.password is not configured in config.json');
+    }
     if (!this.config.minara.api_key || this.config.minara.api_key === 'REPLACE_WITH_YOUR_MINARA_API_KEY') {
       throw new Error('minara.api_key is not configured in config.json');
     }
@@ -172,6 +185,39 @@ class MemberClawApplication {
     // Gateway クライアント
     this.gatewayClient = new GatewayClient(this.config.gateway, this.config.member_id);
     console.log('[MEMBER-CLAW] Gateway client initialized');
+  }
+
+  // ==================== Supabase 認証 ====================
+
+  /**
+   * Supabase にログインしてセッションを取得する。
+   * Realtime の postgres_changes は認証済みセッションが必要。
+   */
+  private async authenticate(): Promise<void> {
+    console.log('[MEMBER-CLAW] Authenticating with Supabase...');
+
+    const { data, error } = await this.supabase.auth.signInWithPassword({
+      email: this.config.auth.email,
+      password: this.config.auth.password,
+    });
+
+    if (error) {
+      throw new Error(`Authentication failed: ${error.message}`);
+    }
+
+    if (!data.session) {
+      throw new Error('Authentication succeeded but no session returned');
+    }
+
+    // member_id の整合性チェック
+    if (data.user.id !== this.config.member_id) {
+      console.warn(
+        `[MEMBER-CLAW] WARNING: config.member_id (${this.config.member_id}) does not match auth user ID (${data.user.id}). Using auth user ID.`
+      );
+      this.config.member_id = data.user.id;
+    }
+
+    console.log(`[MEMBER-CLAW] Authenticated as: ${data.user.email} (${data.user.id})`);
   }
 
   // ==================== メンバーシップ確認 ====================
