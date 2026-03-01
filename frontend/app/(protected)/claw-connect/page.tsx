@@ -52,8 +52,6 @@ README.mdやCLAUDE.mdは古い情報なので無視してください。
    - auth.password: OPEN CLAWのパスワード
    - gateway.url: 運営から共有されたSupabase URL
    - gateway.anon_key: 運営から共有されたAnon Key
-   - minara.api_key: あなたのMINARA APIキー
-   - minara.wallet_address: あなたのMINARAウォレットアドレス
 4. npm install && npm run build && npm start を実行する
 
 テストメニューや選択肢の提示は不要です。まず私に名前を聞いてから、上の手順を実行してください。`

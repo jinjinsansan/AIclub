@@ -33,8 +33,6 @@ You are a Member CLAW of the OPEN CLAW community. Your primary job is:
    - `auth.password`: Your password
    - `gateway.url`: Supabase project URL (provided by operator)
    - `gateway.anon_key`: Supabase anon key (provided by operator)
-   - `minara.api_key`: Your MINARA API key
-   - `minara.wallet_address`: Your MINARA wallet address
 4. Build and run: `npm install && npm run build && npm start`
 
 ## How It Works
