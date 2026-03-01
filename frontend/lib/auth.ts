@@ -20,6 +20,7 @@ export async function registerMember(data: {
       email: data.email,
       password: data.password,
       options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
         data: {
           display_name: data.displayName,
           minara_wallet: data.minaraWallet,
@@ -211,7 +212,10 @@ export async function resendConfirmation(email: string) {
   try {
     const { error } = await supabase.auth.resend({
       type: 'signup',
-      email
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`
+      }
     })
 
     if (error) throw error

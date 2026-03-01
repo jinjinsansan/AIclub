@@ -20,12 +20,30 @@ function VerifyContent() {
   const [email, setEmail] = useState('')
 
   useEffect(() => {
+    // query params からトークンを取得（/auth/callback 経由）
     const token = searchParams.get('token')
     const type = searchParams.get('type')
 
     if (token && type === 'signup') {
       setStatus('verifying')
       handleEmailVerification(token)
+      return
+    }
+
+    // hash fragment からエラー情報を取得（Supabase 直接リダイレクト時）
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.substring(1)
+      const hashParams = new URLSearchParams(hash)
+      const errorCode = hashParams.get('error_code')
+      const errorDescription = hashParams.get('error_description')
+
+      if (errorCode) {
+        setStatus('error')
+        setErrorMessage(
+          errorDescription?.replace(/\+/g, ' ') ||
+          'リンクが無効または期限切れの可能性があります。'
+        )
+      }
     }
   }, [searchParams])
 
