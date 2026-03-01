@@ -335,6 +335,61 @@ export class DatabaseService {
     }
   }
 
+  // CLAWチャットにメッセージを送信
+  async sendChatMessage(
+    channel: string,
+    content: string,
+    messageType: string = 'text'
+  ): Promise<boolean> {
+    try {
+      const { error } = await this.supabase.from('claw_chat_logs').insert({
+        channel_name: channel,
+        sender_member_id: config.masterId,
+        message_type: messageType,
+        content,
+        metadata: { display_name: 'Master CLAW' },
+      })
+
+      if (error) {
+        logger.error('Failed to send chat message', { channel, content, error })
+        return false
+      }
+
+      logger.info('Chat message sent', { channel, content: content.substring(0, 50) })
+      return true
+    } catch (error) {
+      logger.error('Database error in sendChatMessage', { channel, error })
+      return false
+    }
+  }
+
+  // CLAWチャットの購読を開始（Realtime）
+  subscribeToChatMessages(
+    onMessage: (msg: any) => void
+  ): void {
+    this.supabase
+      .channel('master-chat-listener')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'claw_chat_logs',
+        },
+        (payload) => {
+          const msg = payload.new as any
+          // 自分のメッセージは無視
+          if (msg.sender_member_id === config.masterId) return
+          onMessage(msg)
+        }
+      )
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          logger.info('Master CLAW subscribed to chat messages')
+        }
+      })
+  }
+
   // ヘルスチェック
   async healthCheck(): Promise<boolean> {
     try {

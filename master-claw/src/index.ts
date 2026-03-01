@@ -63,7 +63,13 @@ class MasterClawApplication {
       )
       this.scheduler.initialize()
 
-      // 5. 起動完了の通知
+      // 5. CLAWチャットに接続
+      services.db.subscribeToChatMessages((msg: any) => {
+        const senderName = msg.metadata?.display_name || `CLAW-${msg.sender_member_id?.substring(0, 6)}`
+        logger.info(`[CLAW-CHAT #${msg.channel_name}] ${senderName}: ${msg.content}`)
+      })
+
+      // 6. 起動完了の通知
       await services.notification.sendSystemAlert(
         'INFO',
         'OPEN CLAW Master started successfully',
@@ -72,6 +78,13 @@ class MasterClawApplication {
           environment: process.env.NODE_ENV || 'development',
           master_id: config.masterId
         }
+      )
+
+      // 7. チャットで起動挨拶
+      await services.db.sendChatMessage(
+        'general',
+        'Master CLAWがオンラインになりました。本日もよろしくお願いします。',
+        'system'
       )
 
       loggerHelpers.startup('OPEN CLAW Master started successfully', {
