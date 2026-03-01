@@ -73,9 +73,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       } else if (isAuthPage && user) {
         // 認証ページで既にログイン済みの場合
         router.push('/dashboard')
-      } else if (user && user.member?.membership_status !== 'active' && isAuthRequired) {
-        // 非アクティブなメンバーの場合
-        router.push('/payment')
       }
     }
   }, [user, loading, pathname, router])

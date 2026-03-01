@@ -69,18 +69,12 @@ export async function loginMember(email: string, password: string) {
 
     // 会員情報も取得
     const member = await getMemberData(data.user.id)
-    
-    // アクティブな会員のみログイン許可
-    if (member?.membership_status !== 'active') {
-      await supabase.auth.signOut()
-      throw new Error('アカウントがアクティブではありません。初期費用の支払いが完了していない可能性があります。')
-    }
 
-    return { 
-      success: true, 
-      user: data.user, 
+    return {
+      success: true,
+      user: data.user,
       member,
-      session: data.session 
+      session: data.session
     }
   } catch (error: any) {
     console.error('Login error:', error)
