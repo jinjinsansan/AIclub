@@ -174,18 +174,18 @@ export default function AdminPage() {
   }
 
   const getActivityIcon = (type: string, status: string) => {
-    if (status === 'error') return <XCircleIcon className="h-5 w-5 text-red-500" />
-    if (status === 'warning') return <ExclamationTriangleIcon className="h-5 w-5 text-yellow-500" />
+    if (status === 'error') return <XCircleIcon className="h-5 w-5 text-error-500" />
+    if (status === 'warning') return <ExclamationTriangleIcon className="h-5 w-5 text-warning-500" />
     
     switch (type) {
       case 'member_registered':
-        return <UserGroupIcon className="h-5 w-5 text-blue-500" />
+        return <UserGroupIcon className="h-5 w-5 text-secondary-500" />
       case 'payment_received':
-        return <CurrencyDollarIcon className="h-5 w-5 text-green-500" />
+        return <CurrencyDollarIcon className="h-5 w-5 text-success-500" />
       case 'reward_paid':
-        return <CheckCircleIcon className="h-5 w-5 text-green-500" />
+        return <CheckCircleIcon className="h-5 w-5 text-success-500" />
       case 'system_error':
-        return <ServerIcon className="h-5 w-5 text-red-500" />
+        return <ServerIcon className="h-5 w-5 text-error-500" />
       default:
         return <BellIcon className="h-5 w-5 text-gray-500" />
     }
@@ -202,7 +202,7 @@ export default function AdminPage() {
   if (user?.member?.plan !== 'master') {
     return (
       <div className="text-center py-12">
-        <ExclamationTriangleIcon className="mx-auto h-12 w-12 text-red-400 mb-4" />
+        <ExclamationTriangleIcon className="mx-auto h-12 w-12 text-error-400 mb-4" />
         <h3 className="text-lg font-medium text-gray-900 mb-2">アクセス権限がありません</h3>
         <p className="text-gray-500">この画面は管理者のみアクセス可能です。</p>
       </div>
@@ -223,25 +223,25 @@ export default function AdminPage() {
       <div className="mb-8">
         <div className={`border-l-4 p-4 ${
           stats.system.uptime_percentage >= 99.5 
-            ? 'bg-green-50 border-green-400' 
-            : 'bg-yellow-50 border-yellow-400'
+            ? 'bg-success-50 border-success-400' 
+            : 'bg-warning-50 border-warning-400'
         }`}>
           <div className="flex items-center">
             <div className="flex-shrink-0">
               {stats.system.uptime_percentage >= 99.5 ? (
-                <CheckCircleIcon className="h-5 w-5 text-green-400" />
+                <CheckCircleIcon className="h-5 w-5 text-success-400" />
               ) : (
-                <ExclamationTriangleIcon className="h-5 w-5 text-yellow-400" />
+                <ExclamationTriangleIcon className="h-5 w-5 text-warning-400" />
               )}
             </div>
             <div className="ml-3">
               <p className={`text-sm font-medium ${
-                stats.system.uptime_percentage >= 99.5 ? 'text-green-800' : 'text-yellow-800'
+                stats.system.uptime_percentage >= 99.5 ? 'text-success-800' : 'text-warning-800'
               }`}>
                 システム稼働率: {stats.system.uptime_percentage}%
               </p>
               <p className={`text-sm ${
-                stats.system.uptime_percentage >= 99.5 ? 'text-green-700' : 'text-yellow-700'
+                stats.system.uptime_percentage >= 99.5 ? 'text-success-700' : 'text-warning-700'
               }`}>
                 最終Webhook受信: {new Date(stats.system.last_webhook).toLocaleString('ja-JP')}
               </p>
@@ -268,7 +268,7 @@ export default function AdminPage() {
         <div className="card">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <CurrencyDollarIcon className="h-8 w-8 text-green-600" />
+              <CurrencyDollarIcon className="h-8 w-8 text-success-600" />
             </div>
             <div className="ml-4">
               <p className="text-sm text-gray-600">総売上</p>
@@ -281,7 +281,7 @@ export default function AdminPage() {
         <div className="card">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <ChartBarIcon className="h-8 w-8 text-blue-600" />
+              <ChartBarIcon className="h-8 w-8 text-secondary-600" />
             </div>
             <div className="ml-4">
               <p className="text-sm text-gray-600">紹介報酬総額</p>
@@ -332,7 +332,7 @@ export default function AdminPage() {
                       {activity.description}
                     </p>
                     {activity.amount && (
-                      <p className="text-sm font-medium text-green-600">
+                      <p className="text-sm font-medium text-success-600">
                         ${activity.amount.toLocaleString()}
                       </p>
                     )}
@@ -395,22 +395,22 @@ export default function AdminPage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">データベース</span>
-                <CheckCircleIcon className="h-5 w-5 text-green-500" />
+                <CheckCircleIcon className="h-5 w-5 text-success-500" />
               </div>
               
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">MINARA API</span>
-                <CheckCircleIcon className="h-5 w-5 text-green-500" />
+                <CheckCircleIcon className="h-5 w-5 text-success-500" />
               </div>
               
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">LINE Bot</span>
-                <CheckCircleIcon className="h-5 w-5 text-green-500" />
+                <CheckCircleIcon className="h-5 w-5 text-success-500" />
               </div>
               
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Webhook受信</span>
-                <ClockIcon className="h-5 w-5 text-yellow-500" />
+                <ClockIcon className="h-5 w-5 text-warning-500" />
               </div>
             </div>
           </div>

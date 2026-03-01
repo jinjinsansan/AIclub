@@ -91,11 +91,11 @@ export default function CLAWStudioPage() {
       <h1 className="text-2xl font-bold text-gray-900 mb-6">CLAW Studio</h1>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-          <p className="text-red-800 text-sm">{error}</p>
+        <div className="bg-error-50 border border-error-200 rounded-lg p-4 mb-6">
+          <p className="text-error-800 text-sm">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="mt-2 text-sm text-red-600 hover:text-red-800 underline"
+            className="mt-2 text-sm text-error-600 hover:text-error-800 underline"
           >
             再読み込み
           </button>
@@ -193,7 +193,7 @@ export default function CLAWStudioPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">自動実行:</span>
-                <span className="font-medium text-green-600">有効</span>
+                <span className="font-medium text-success-600">有効</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">参加チャンネル:</span>

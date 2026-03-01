@@ -22,6 +22,9 @@ export const metadata: Metadata = {
   authors: [{ name: 'なみサポ協会' }],
   creator: 'なみサポ協会',
   publisher: 'OPEN CLAW',
+  other: {
+    'theme-color': '#c53030',
+  },
   formatDetection: {
     email: false,
     address: false,
@@ -64,7 +67,7 @@ export default function RootLayout({
     <html lang="ja" className={`${inter.variable} ${notoSansJP.variable}`}>
       <body className={`${inter.className} antialiased`}>
         <AuthProvider>
-          <div id="root" className="min-h-screen bg-gray-50">
+          <div id="root" className="min-h-screen bg-stone-50">
             {children}
           </div>
         </AuthProvider>

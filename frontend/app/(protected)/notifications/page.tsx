@@ -60,7 +60,7 @@ export default function NotificationsPage() {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'trade_signal':
-        return <BoltIcon className="h-5 w-5 text-blue-500" />
+        return <BoltIcon className="h-5 w-5 text-secondary-500" />
       case 'reward_notify':
         return <CurrencyDollarIcon className="h-5 w-5 text-success-500" />
       case 'broadcast':
@@ -68,7 +68,7 @@ export default function NotificationsPage() {
       case 'system_alert':
         return <ExclamationTriangleIcon className="h-5 w-5 text-warning-500" />
       case 'update':
-        return <CheckCircleIcon className="h-5 w-5 text-green-500" />
+        return <CheckCircleIcon className="h-5 w-5 text-success-500" />
       default:
         return <BellIcon className="h-5 w-5 text-gray-500" />
     }

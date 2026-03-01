@@ -156,7 +156,7 @@ export default function RewardsPreviewPage() {
   if (user?.member?.plan !== 'master') {
     return (
       <div className="text-center py-12">
-        <ExclamationTriangleIcon className="mx-auto h-12 w-12 text-red-400 mb-4" />
+        <ExclamationTriangleIcon className="mx-auto h-12 w-12 text-error-400 mb-4" />
         <h3 className="text-lg font-medium text-gray-900 mb-2">アクセス権限がありません</h3>
         <p className="text-gray-500">この画面は管理者のみアクセス可能です。</p>
       </div>
@@ -185,13 +185,13 @@ export default function RewardsPreviewPage() {
 
       {/* サマリーカード */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="card bg-gradient-to-r from-green-500 to-green-600 text-white">
+        <div className="card bg-gradient-to-r from-success-500 to-success-600 text-white">
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <CurrencyDollarIcon className="h-8 w-8" />
             </div>
             <div className="ml-4">
-              <p className="text-sm text-green-100">総送金額</p>
+              <p className="text-sm text-success-100">総送金額</p>
               <p className="text-2xl font-bold">${totalAmount.toLocaleString()}</p>
             </div>
           </div>
@@ -212,7 +212,7 @@ export default function RewardsPreviewPage() {
         <div className="card">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <ClockIcon className="h-8 w-8 text-blue-600" />
+              <ClockIcon className="h-8 w-8 text-secondary-600" />
             </div>
             <div className="ml-4">
               <p className="text-sm text-gray-600">処理月</p>
@@ -311,12 +311,12 @@ export default function RewardsPreviewPage() {
       </div>
 
       {/* 注意事項 */}
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+      <div className="bg-warning-50 border border-warning-200 rounded-lg p-6">
         <div className="flex items-start">
-          <ExclamationTriangleIcon className="h-6 w-6 text-yellow-600 mr-3 flex-shrink-0 mt-1" />
+          <ExclamationTriangleIcon className="h-6 w-6 text-warning-600 mr-3 flex-shrink-0 mt-1" />
           <div>
-            <h4 className="font-semibold text-yellow-900 mb-2">送金実行前の確認事項</h4>
-            <ul className="text-sm text-yellow-800 space-y-1">
+            <h4 className="font-semibold text-warning-900 mb-2">送金実行前の確認事項</h4>
+            <ul className="text-sm text-warning-800 space-y-1">
               <li>• 送金処理は取り消しできません。内容を十分に確認してください。</li>
               <li>• 各メンバーのMINARAウォレットアドレスが正確であることを確認してください。</li>
               <li>• マスターウォレットの残高が送金総額を上回っていることを確認してください。</li>

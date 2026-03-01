@@ -10,6 +10,7 @@ import {
   CheckCircleIcon,
   ArrowLeftIcon
 } from '@heroicons/react/24/outline'
+import { CrayfishLogo } from '@/components/icons/CrayfishLogo'
 
 export default function PaymentPage() {
   const { user, signOut } = useAuth()
@@ -76,6 +77,9 @@ export default function PaymentPage() {
         </div>
 
         <div className="card">
+          <div className="text-center mb-6">
+            <CrayfishLogo variant="gradient" size={48} className="mx-auto" />
+          </div>
           <div className={`rounded-lg p-6 mb-8 border ${statusInfo.bgColor}`}>
             <div className="flex items-start">
               <div className="flex-shrink-0">

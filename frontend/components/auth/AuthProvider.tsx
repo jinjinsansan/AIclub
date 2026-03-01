@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { AuthUser, getCurrentUser, onAuthStateChange } from '@/lib/auth'
+import { CrayfishLogo } from '@/components/icons/CrayfishLogo'
 
 interface AuthContextType {
   user: AuthUser | null
@@ -108,8 +109,9 @@ export function AuthLoading() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-secondary-50">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-        <h2 className="text-lg font-semibold text-gray-900">OPEN CLAW</h2>
+        <CrayfishLogo variant="gradient" size={48} className="mx-auto mb-4" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-4"></div>
+        <h2 className="text-lg font-semibold text-gradient-crayfish">OPEN CLAW</h2>
         <p className="text-gray-600">認証状態を確認中...</p>
       </div>
     </div>

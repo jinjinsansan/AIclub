@@ -283,10 +283,10 @@ export default function ManualPage() {
 
               <div className="flex items-start space-x-4">
                 <div className={`flex-shrink-0 p-3 rounded-lg ${
-                  manual.content_type === 'video' ? 'bg-red-100' : 'bg-blue-100'
+                  manual.content_type === 'video' ? 'bg-primary-100' : 'bg-secondary-100'
                 }`}>
                   <ContentIcon className={`h-6 w-6 ${
-                    manual.content_type === 'video' ? 'text-red-600' : 'text-blue-600'
+                    manual.content_type === 'video' ? 'text-primary-600' : 'text-secondary-600'
                   }`} />
                 </div>
 

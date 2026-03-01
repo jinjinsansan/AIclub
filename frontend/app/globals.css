@@ -6,29 +6,31 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand colors */
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-200: #bfdbfe;
-  --color-primary-300: #93c5fd;
-  --color-primary-400: #60a5fa;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-primary-800: #1e40af;
-  --color-primary-900: #1e3a8a;
+  /* Primary — 深紅/バーガンディ（ザリガニの甲殻） */
+  --color-primary-50: #fdf2f2;
+  --color-primary-100: #fce4e4;
+  --color-primary-200: #f9c6c6;
+  --color-primary-300: #f29b9b;
+  --color-primary-400: #e66a6a;
+  --color-primary-500: #c53030;
+  --color-primary-600: #9b2c2c;
+  --color-primary-700: #822727;
+  --color-primary-800: #63171b;
+  --color-primary-900: #4a1219;
 
-  --color-secondary-50: #f0f9ff;
-  --color-secondary-100: #e0f2fe;
-  --color-secondary-200: #bae6fd;
-  --color-secondary-300: #7dd3fc;
-  --color-secondary-400: #38bdf8;
-  --color-secondary-500: #0ea5e9;
-  --color-secondary-600: #0284c7;
-  --color-secondary-700: #0369a1;
-  --color-secondary-800: #075985;
-  --color-secondary-900: #0c4a6e;
+  /* Secondary — ダークゴールド（ハサミのハイライト） */
+  --color-secondary-50: #fefcf3;
+  --color-secondary-100: #fef5d7;
+  --color-secondary-200: #fce8a5;
+  --color-secondary-300: #f9d56e;
+  --color-secondary-400: #f0b429;
+  --color-secondary-500: #d69e2e;
+  --color-secondary-600: #b7791f;
+  --color-secondary-700: #975a16;
+  --color-secondary-800: #744210;
+  --color-secondary-900: #5f370e;
 
+  /* Success */
   --color-success-50: #f0fdf4;
   --color-success-100: #dcfce7;
   --color-success-200: #bbf7d0;
@@ -40,6 +42,7 @@
   --color-success-800: #166534;
   --color-success-900: #14532d;
 
+  /* Warning */
   --color-warning-50: #fffbeb;
   --color-warning-100: #fef3c7;
   --color-warning-200: #fde68a;
@@ -51,16 +54,17 @@
   --color-warning-800: #92400e;
   --color-warning-900: #78350f;
 
-  --color-error-50: #fef2f2;
-  --color-error-100: #fee2e2;
-  --color-error-200: #fecaca;
-  --color-error-300: #fca5a5;
-  --color-error-400: #f87171;
-  --color-error-500: #ef4444;
-  --color-error-600: #dc2626;
-  --color-error-700: #b91c1c;
-  --color-error-800: #991b1b;
-  --color-error-900: #7f1d1d;
+  /* Error — ローズ系（Primary深紅と区別するため） */
+  --color-error-50: #fff1f2;
+  --color-error-100: #ffe4e6;
+  --color-error-200: #fecdd3;
+  --color-error-300: #fda4af;
+  --color-error-400: #fb7185;
+  --color-error-500: #f43f5e;
+  --color-error-600: #e11d48;
+  --color-error-700: #be123c;
+  --color-error-800: #9f1239;
+  --color-error-900: #881337;
 
   /* Typography */
   --font-sans: 'Inter', 'Noto Sans JP', 'Hiragino Sans', system-ui, sans-serif;
@@ -74,13 +78,13 @@
 
 /* ルートCSS変数 */
 :root {
-  --claw-primary: #3b82f6;
-  --claw-secondary: #0ea5e9;
+  --claw-primary: #c53030;
+  --claw-secondary: #d69e2e;
   --claw-success: #22c55e;
   --claw-warning: #f59e0b;
-  --claw-error: #ef4444;
+  --claw-error: #f43f5e;
   --claw-dark: #1f2937;
-  --claw-light: #f9fafb;
+  --claw-light: #fafaf9;
 }
 
 /* ベーススタイル */
@@ -90,7 +94,7 @@ html {
 }
 
 body {
-  @apply bg-gray-50 text-gray-900 antialiased;
+  @apply bg-stone-50 text-gray-900 antialiased;
 }
 
 /* カスタムコンポーネント */
@@ -136,6 +140,21 @@ body {
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  .gradient-crayfish {
+    background: linear-gradient(135deg, #c53030 0%, #9b2c2c 40%, #d69e2e 100%);
+  }
+
+  .text-gradient-crayfish {
+    background: linear-gradient(135deg, #c53030 0%, #d69e2e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .shadow-warm {
+    box-shadow: 0 4px 14px -3px rgba(197, 48, 48, 0.15), 0 2px 6px -2px rgba(214, 158, 46, 0.1);
   }
 
   .scrollbar-thin {

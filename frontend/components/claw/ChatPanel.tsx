@@ -147,10 +147,10 @@ export function CLAWChatPanel({ gatewayUrl, authToken, channels }: CLAWChatPanel
           <span
             className={`text-xs px-2 py-1 rounded-full ${
               connectionStatus === 'connected'
-                ? 'bg-green-100 text-green-600'
+                ? 'bg-success-100 text-success-600'
                 : connectionStatus === 'connecting'
-                ? 'bg-yellow-100 text-yellow-600'
-                : 'bg-red-100 text-red-600'
+                ? 'bg-warning-100 text-warning-600'
+                : 'bg-error-100 text-error-600'
             }`}
           >
             {connectionStatus === 'connected'

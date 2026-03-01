@@ -113,11 +113,11 @@ export default function ReferralsPage() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'paid':
-        return <CheckCircleIcon className="h-5 w-5 text-green-600" />
+        return <CheckCircleIcon className="h-5 w-5 text-success-600" />
       case 'pending':
-        return <ClockIcon className="h-5 w-5 text-yellow-600" />
+        return <ClockIcon className="h-5 w-5 text-warning-600" />
       case 'processing':
-        return <ArrowTrendingUpIcon className="h-5 w-5 text-blue-600" />
+        return <ArrowTrendingUpIcon className="h-5 w-5 text-secondary-600" />
       default:
         return <ExclamationTriangleIcon className="h-5 w-5 text-gray-400" />
     }
@@ -232,7 +232,7 @@ export default function ReferralsPage() {
         <div className="card">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <ArrowTrendingUpIcon className="h-8 w-8 text-blue-600" />
+              <ArrowTrendingUpIcon className="h-8 w-8 text-secondary-600" />
             </div>
             <div className="ml-4">
               <p className="text-sm text-gray-600">2段階目</p>
@@ -244,7 +244,7 @@ export default function ReferralsPage() {
         <div className="card">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <ShareIcon className="h-8 w-8 text-green-600" />
+              <ShareIcon className="h-8 w-8 text-success-600" />
             </div>
             <div className="ml-4">
               <p className="text-sm text-gray-600">3段階目</p>
@@ -256,7 +256,7 @@ export default function ReferralsPage() {
         <div className="card">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <CurrencyDollarIcon className="h-8 w-8 text-yellow-600" />
+              <CurrencyDollarIcon className="h-8 w-8 text-warning-600" />
             </div>
             <div className="ml-4">
               <p className="text-sm text-gray-600">累計獲得</p>
@@ -270,15 +270,15 @@ export default function ReferralsPage() {
       <div className="card mb-8">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">月次報酬</h3>
         
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+        <div className="bg-secondary-50 border border-secondary-200 rounded-lg p-4 mb-6">
           <div className="flex items-center">
-            <GiftIcon className="h-6 w-6 text-yellow-600 mr-3" />
+            <GiftIcon className="h-6 w-6 text-warning-600 mr-3" />
             <div>
-              <p className="font-semibold text-yellow-800">今月の未払い報酬</p>
-              <p className="text-2xl font-bold text-yellow-900">${stats.pendingRewards}</p>
+              <p className="font-semibold text-secondary-800">今月の未払い報酬</p>
+              <p className="text-2xl font-bold text-secondary-900">${stats.pendingRewards}</p>
             </div>
           </div>
-          <p className="text-sm text-yellow-600 mt-2">
+          <p className="text-sm text-warning-600 mt-2">
             報酬は毎月1日にMINARAウォレットに自動送金されます。
           </p>
         </div>
@@ -357,8 +357,8 @@ export default function ReferralsPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         item.level === 1 ? 'bg-primary-100 text-primary-800' :
-                        item.level === 2 ? 'bg-blue-100 text-blue-800' :
-                        'bg-green-100 text-green-800'
+                        item.level === 2 ? 'bg-secondary-100 text-secondary-800' :
+                        'bg-success-100 text-success-800'
                       }`}>
                         {item.level}段階目
                       </span>
@@ -401,7 +401,7 @@ export default function ReferralsPage() {
       </div>
 
       {/* 紹介制度の説明 */}
-      <div className="mt-8 bg-gradient-to-r from-primary-50 to-blue-50 border border-primary-200 rounded-lg p-6">
+      <div className="mt-8 bg-gradient-to-r from-primary-50 to-secondary-50 border border-primary-200 rounded-lg p-6">
         <h4 className="font-semibold text-primary-900 mb-4">OPEN CLAW 3段階紹介制度</h4>
         
         <div className="grid md:grid-cols-3 gap-4">
@@ -415,21 +415,21 @@ export default function ReferralsPage() {
           </div>
 
           <div className="text-center">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-              <span className="text-2xl font-bold text-blue-600">2</span>
+            <div className="w-16 h-16 bg-secondary-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <span className="text-2xl font-bold text-secondary-600">2</span>
             </div>
-            <h5 className="font-semibold text-blue-900 mb-2">2段階目</h5>
-            <p className="text-sm text-blue-800 mb-1">報酬: <strong>$50</strong></p>
-            <p className="text-sm text-blue-600">あなたが紹介した人がさらに人を紹介</p>
+            <h5 className="font-semibold text-secondary-900 mb-2">2段階目</h5>
+            <p className="text-sm text-secondary-800 mb-1">報酬: <strong>$50</strong></p>
+            <p className="text-sm text-secondary-600">あなたが紹介した人がさらに人を紹介</p>
           </div>
 
           <div className="text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-              <span className="text-2xl font-bold text-green-600">3</span>
+            <div className="w-16 h-16 bg-success-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <span className="text-2xl font-bold text-success-600">3</span>
             </div>
-            <h5 className="font-semibold text-green-900 mb-2">3段階目</h5>
-            <p className="text-sm text-green-800 mb-1">報酬: <strong>$50</strong></p>
-            <p className="text-sm text-green-600">2段階目の人がさらに人を紹介</p>
+            <h5 className="font-semibold text-success-900 mb-2">3段階目</h5>
+            <p className="text-sm text-success-800 mb-1">報酬: <strong>$50</strong></p>
+            <p className="text-sm text-success-600">2段階目の人がさらに人を紹介</p>
           </div>
         </div>
 

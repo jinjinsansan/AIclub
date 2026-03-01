@@ -20,6 +20,7 @@ import {
   CommandLineIcon,
 } from '@heroicons/react/24/outline'
 import { cn } from '@/lib/utils'
+import { CrayfishLogo } from '@/components/icons/CrayfishLogo'
 
 const navigation = [
   { name: 'ダッシュボード', href: '/dashboard', icon: HomeIcon },
@@ -76,7 +77,7 @@ export default function ProtectedLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-stone-50">
       {/* Mobile sidebar */}
       <div className={cn(
         "fixed inset-0 z-50 lg:hidden",
@@ -85,7 +86,10 @@ export default function ProtectedLayout({
         <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
         <div className="fixed inset-y-0 left-0 flex w-64 flex-col bg-white">
           <div className="flex h-16 items-center justify-between px-4 border-b border-gray-200">
-            <h1 className="text-xl font-bold text-primary-600">OPEN CLAW</h1>
+            <div className="flex items-center space-x-2">
+              <CrayfishLogo variant="gradient" size={28} />
+              <h1 className="text-xl font-bold text-gradient-crayfish">OPEN CLAW</h1>
+            </div>
             <button
               className="text-gray-400 hover:text-gray-600"
               onClick={() => setSidebarOpen(false)}
@@ -126,8 +130,9 @@ export default function ProtectedLayout({
       {/* Desktop sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-64 lg:flex-col">
         <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white border-r border-gray-200 px-6 py-4">
-          <div className="flex h-12 items-center">
-            <h1 className="text-2xl font-bold text-primary-600">OPEN CLAW</h1>
+          <div className="flex h-12 items-center space-x-2">
+            <CrayfishLogo variant="gradient" size={32} />
+            <h1 className="text-2xl font-bold text-gradient-crayfish">OPEN CLAW</h1>
           </div>
 
           {/* User status */}

@@ -10,10 +10,10 @@ interface CLAWConnectionStatusProps {
 
 export function CLAWConnectionStatus({ memberId, status, onRefresh }: CLAWConnectionStatusProps) {
   const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
-    online: { label: 'オンライン', color: 'text-green-800', bg: 'bg-green-100' },
-    connecting: { label: '接続中...', color: 'text-yellow-800', bg: 'bg-yellow-100' },
+    online: { label: 'オンライン', color: 'text-success-800', bg: 'bg-success-100' },
+    connecting: { label: '接続中...', color: 'text-warning-800', bg: 'bg-warning-100' },
     offline: { label: 'オフライン', color: 'text-gray-800', bg: 'bg-gray-100' },
-    error: { label: 'エラー', color: 'text-red-800', bg: 'bg-red-100' },
+    error: { label: 'エラー', color: 'text-error-800', bg: 'bg-error-100' },
   }
 
   const config = statusConfig[status] || statusConfig.offline
@@ -22,9 +22,9 @@ export function CLAWConnectionStatus({ memberId, status, onRefresh }: CLAWConnec
     <div className="flex items-center justify-between p-4 bg-white border rounded-lg mb-4">
       <div className="flex items-center space-x-3">
         <div className={`w-3 h-3 rounded-full ${
-          status === 'online' ? 'bg-green-500 animate-pulse' :
-          status === 'connecting' ? 'bg-yellow-500 animate-pulse' :
-          status === 'error' ? 'bg-red-500' :
+          status === 'online' ? 'bg-success-500 animate-pulse' :
+          status === 'connecting' ? 'bg-warning-500 animate-pulse' :
+          status === 'error' ? 'bg-error-500' :
           'bg-gray-400'
         }`} />
         <div>

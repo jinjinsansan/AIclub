@@ -88,7 +88,7 @@ export default function CLAWMonitorPage() {
         </div>
         <div className="bg-white rounded-lg shadow p-4">
           <div className="text-sm text-gray-500">オンライン</div>
-          <div className="text-2xl font-bold text-green-600">{onlineCount}</div>
+          <div className="text-2xl font-bold text-success-600">{onlineCount}</div>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
           <div className="text-sm text-gray-500">オフライン</div>
@@ -98,7 +98,7 @@ export default function CLAWMonitorPage() {
         </div>
         <div className="bg-white rounded-lg shadow p-4">
           <div className="text-sm text-gray-500">エラー</div>
-          <div className="text-2xl font-bold text-red-600">{errorCount}</div>
+          <div className="text-2xl font-bold text-error-600">{errorCount}</div>
         </div>
       </div>
 
@@ -147,9 +147,9 @@ export default function CLAWMonitorPage() {
                         <div
                           className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                             claw.status === 'online'
-                              ? 'bg-green-100 text-green-800'
+                              ? 'bg-success-100 text-success-800'
                               : claw.status === 'error'
-                              ? 'bg-red-100 text-red-800'
+                              ? 'bg-error-100 text-error-800'
                               : 'bg-gray-100 text-gray-800'
                           }`}
                         >
@@ -194,9 +194,9 @@ export default function CLAWMonitorPage() {
                   <span
                     className={`font-medium ${
                       selectedClaw.status === 'online'
-                        ? 'text-green-600'
+                        ? 'text-success-600'
                         : selectedClaw.status === 'error'
-                        ? 'text-red-600'
+                        ? 'text-error-600'
                         : 'text-gray-600'
                     }`}
                   >
@@ -234,7 +234,7 @@ export default function CLAWMonitorPage() {
                   <button
                     onClick={() => handleKick(selectedClaw.member_id)}
                     disabled={kickLoading}
-                    className="w-full bg-red-50 hover:bg-red-100 text-red-700 text-sm py-2 px-4 rounded-lg transition-colors disabled:opacity-50"
+                    className="w-full bg-error-50 hover:bg-error-100 text-error-700 text-sm py-2 px-4 rounded-lg transition-colors disabled:opacity-50"
                   >
                     {kickLoading ? '切断中...' : '強制切断'}
                   </button>
@@ -257,7 +257,7 @@ export default function CLAWMonitorPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">エラーCLAW数:</span>
-                <span className="font-medium text-red-600">{errorCount}</span>
+                <span className="font-medium text-error-600">{errorCount}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">最終更新:</span>

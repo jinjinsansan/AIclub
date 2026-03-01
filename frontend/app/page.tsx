@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { ArrowRightIcon, ChatBubbleLeftRightIcon, CurrencyDollarIcon, UserGroupIcon, ShieldCheckIcon } from '@heroicons/react/24/outline'
+import { CrayfishLogo } from '@/components/icons/CrayfishLogo'
 
 export default function LandingPage() {
   return (
@@ -9,8 +10,9 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <h1 className="text-2xl font-bold text-primary-600">OPEN CLAW</h1>
+              <div className="flex-shrink-0 flex items-center space-x-2">
+                <CrayfishLogo variant="gradient" size={36} />
+                <h1 className="text-2xl font-bold text-gradient-crayfish">OPEN CLAW</h1>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -64,7 +66,7 @@ export default function LandingPage() {
               最先端のAI技術とコミュニティの力を組み合わせた、まったく新しいプラットフォーム
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center">
               <div className="mx-auto h-16 w-16 bg-primary-100 rounded-full flex items-center justify-center mb-4">
@@ -75,7 +77,7 @@ export default function LandingPage() {
                 高性能AIボットがあなたの投資戦略をサポート
               </p>
             </div>
-            
+
             <div className="text-center">
               <div className="mx-auto h-16 w-16 bg-secondary-100 rounded-full flex items-center justify-center mb-4">
                 <CurrencyDollarIcon className="h-8 w-8 text-secondary-600" />
@@ -85,7 +87,7 @@ export default function LandingPage() {
                 MINARA AIとの連携による完全自動トレードシステム
               </p>
             </div>
-            
+
             <div className="text-center">
               <div className="mx-auto h-16 w-16 bg-success-100 rounded-full flex items-center justify-center mb-4">
                 <UserGroupIcon className="h-8 w-8 text-success-600" />
@@ -95,7 +97,7 @@ export default function LandingPage() {
                 3段階の紹介報酬で継続的な収益機会を提供
               </p>
             </div>
-            
+
             <div className="text-center">
               <div className="mx-auto h-16 w-16 bg-warning-100 rounded-full flex items-center justify-center mb-4">
                 <ShieldCheckIcon className="h-8 w-8 text-warning-600" />
@@ -110,7 +112,7 @@ export default function LandingPage() {
       </section>
 
       {/* 料金セクション */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-stone-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
@@ -120,7 +122,7 @@ export default function LandingPage() {
               明確で公正な料金設定。すべて先払い制で安心してご利用いただけます。
             </p>
           </div>
-          
+
           <div className="max-w-lg mx-auto">
             <div className="card text-center">
               <div className="mb-8">
@@ -133,7 +135,7 @@ export default function LandingPage() {
                   すべての機能にアクセス可能
                 </p>
               </div>
-              
+
               <ul className="space-y-3 mb-8 text-left">
                 <li className="flex items-center">
                   <ShieldCheckIcon className="h-5 w-5 text-success-500 mr-3" />
@@ -160,7 +162,7 @@ export default function LandingPage() {
                   <span>Zoomセミナー参加</span>
                 </li>
               </ul>
-              
+
               <Link href="/register" className="btn-primary w-full text-lg py-3">
                 今すぐ始める
               </Link>
@@ -170,23 +172,26 @@ export default function LandingPage() {
       </section>
 
       {/* フッター */}
-      <footer className="bg-gray-900 text-white py-12">
+      <footer className="bg-primary-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h3 className="text-2xl font-bold mb-4">OPEN CLAW</h3>
-            <p className="text-gray-400 mb-8">
+            <div className="flex items-center justify-center space-x-3 mb-4">
+              <CrayfishLogo variant="mono-light" size={32} />
+              <h3 className="text-2xl font-bold">OPEN CLAW</h3>
+            </div>
+            <p className="text-primary-200 mb-8">
               AIと共に進む、新しい時代のコミュニティプラットフォーム
             </p>
             <div className="flex justify-center space-x-6">
-              <Link href="/login" className="text-gray-400 hover:text-white transition-colors">
+              <Link href="/login" className="text-primary-200 hover:text-white transition-colors">
                 ログイン
               </Link>
-              <Link href="/register" className="text-gray-400 hover:text-white transition-colors">
+              <Link href="/register" className="text-primary-200 hover:text-white transition-colors">
                 新規登録
               </Link>
             </div>
           </div>
-          <div className="mt-8 pt-8 border-t border-gray-800 text-center text-sm text-gray-500">
+          <div className="mt-8 pt-8 border-t border-primary-800 text-center text-sm text-primary-300">
             <p>&copy; 2026 なみサポ協会 / OPEN CLAW. All rights reserved.</p>
           </div>
         </div>

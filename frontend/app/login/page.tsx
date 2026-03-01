@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { ArrowLeftIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
+import { CrayfishLogo } from '@/components/icons/CrayfishLogo'
 
 // バリデーションスキーマ
 const loginSchema = z.object({
@@ -61,6 +62,7 @@ export default function LoginPage() {
         
         <div className="card">
           <div className="text-center mb-8">
+            <CrayfishLogo variant="gradient" size={48} className="mx-auto mb-3" />
             <h2 className="text-2xl font-bold text-gray-900">サロンにログイン</h2>
             <p className="mt-2 text-gray-600">
               OPEN CLAWコミュニティへようこそ

@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { ArrowLeftIcon, CheckCircleIcon } from '@heroicons/react/24/outline'
+import { CrayfishLogo } from '@/components/icons/CrayfishLogo'
 
 // バリデーションスキーマ
 const registerSchema = z.object({
@@ -120,6 +121,7 @@ function RegisterContent() {
         
         <div className="card">
           <div className="text-center mb-8">
+            <CrayfishLogo variant="gradient" size={48} className="mx-auto mb-3" />
             <h2 className="text-2xl font-bold text-gray-900">OPEN CLAW に参加</h2>
             <p className="mt-2 text-gray-600">
               新しいAIコミュニティの一員になりましょう

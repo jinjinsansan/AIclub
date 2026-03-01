@@ -10,6 +10,7 @@ import {
   EnvelopeIcon,
   ArrowRightIcon
 } from '@heroicons/react/24/outline'
+import { CrayfishLogo } from '@/components/icons/CrayfishLogo'
 
 function VerifyContent() {
   const searchParams = useSearchParams()
@@ -75,7 +76,8 @@ function VerifyContent() {
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary-600">OPEN CLAW</h1>
+          <CrayfishLogo variant="gradient" size={48} className="mx-auto mb-3" />
+          <h1 className="text-3xl font-bold text-gradient-crayfish">OPEN CLAW</h1>
           <p className="mt-2 text-gray-600">メール認証</p>
         </div>
 
