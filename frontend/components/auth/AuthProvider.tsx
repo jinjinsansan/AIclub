@@ -75,7 +75,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         router.push('/dashboard')
       } else if (user && user.member?.membership_status !== 'active' && isAuthRequired) {
         // 非アクティブなメンバーの場合
-        router.push('/payment-pending')
+        router.push('/payment')
       }
     }
   }, [user, loading, pathname, router])
