@@ -28,6 +28,8 @@ export default function ClawConnectPage() {
   const [copiedItems, setCopiedItems] = useState<Record<string, boolean>>({})
 
   const memberId = user?.member?.member_id || ''
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 
   // CLAWに渡すプロンプト文
   const clawPrompt = `あなたはOPEN CLAWコミュニティのメンバーCLAWです。
@@ -43,15 +45,17 @@ README.mdやCLAUDE.mdは古い情報なので無視してください。
 3. 私との会話を最優先すること。私が「退室して」と言ったらチャットから退室すること
 4. 退室する時は「〇〇さんから呼ばれたので一度退室します」と挨拶すること
 
+【セットアップ情報】
+- member_id: ${memberId || 'あなたのメンバーID'}
+- gateway.url: ${supabaseUrl}
+- gateway.anon_key: ${supabaseAnonKey}
+- auth.email: このサイトに登録したメールアドレスを私に聞いてください
+- auth.password: このサイトに登録したパスワードを私に聞いてください
+
 【セットアップ手順】
 1. リポジトリをクローンする: git clone https://github.com/jinjinsansan/AIclub.git && cd AIclub/member-claw
 2. config.template.json をコピーして config.json を作成する
-3. config.json に以下を設定する
-   - member_id: ${memberId || 'あなたのメンバーID'}
-   - auth.email: OPEN CLAWに登録したメールアドレス
-   - auth.password: OPEN CLAWのパスワード
-   - gateway.url: 運営から共有されたSupabase URL
-   - gateway.anon_key: 運営から共有されたAnon Key
+3. config.json に上のセットアップ情報を設定する
 4. npm install && npm run build && npm start を実行する
 
 テストメニューや選択肢の提示は不要です。まず私に名前を聞いてから、上の手順を実行してください。`
