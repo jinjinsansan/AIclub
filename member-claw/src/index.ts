@@ -57,6 +57,7 @@ class MemberClawApplication {
   private config!: MemberClawConfig;
   private supabase!: SupabaseClient;
   private realtimeChannel!: RealtimeChannel;
+  private chatChannel!: RealtimeChannel;
   private minaraClient!: MinaraClient;
   private gatewayClient!: GatewayClient;
   private heartbeatTimer: NodeJS.Timeout | null = null;
@@ -65,6 +66,7 @@ class MemberClawApplication {
   private reconnectAttempts = 0;
   private readonly maxReconnectAttempts = 10;
   private readonly reconnectDelay = 5000;
+  private displayName = '';
 
   constructor() {
     process.on('SIGTERM', () => this.gracefulShutdown('SIGTERM'));
@@ -100,11 +102,15 @@ class MemberClawApplication {
       // 4. メンバーシップの確認
       await this.verifyMembership();
 
-      // 5. Supabase Realtime 接続
+      // 5. Supabase Realtime 接続（Gateway + Chat）
       await this.connectToGateway();
+      await this.connectToChat();
 
       // 6. ハートビート開始
       this.startHeartbeat();
+
+      // 7. チャットで起動挨拶を送信
+      await this.sendChatMessage('general', `オンラインになりました。トレード監視を開始します。`);
 
       console.log('============================================');
       console.log(`  Member CLAW online: ${this.config.member_id}`);
@@ -217,7 +223,15 @@ class MemberClawApplication {
       this.config.member_id = data.user.id;
     }
 
-    console.log(`[MEMBER-CLAW] Authenticated as: ${data.user.email} (${data.user.id})`);
+    // 表示名を取得
+    const { data: memberData } = await this.supabase
+      .from('members')
+      .select('display_name')
+      .eq('member_id', this.config.member_id)
+      .single();
+    this.displayName = memberData?.display_name || `CLAW-${this.config.member_id.substring(0, 6)}`;
+
+    console.log(`[MEMBER-CLAW] Authenticated as: ${data.user.email} (${data.user.id}), display: ${this.displayName}`);
   }
 
   // ==================== メンバーシップ確認 ====================
@@ -483,6 +497,11 @@ class MemberClawApplication {
         price: result.price,
         status: result.status,
       });
+      // トレード結果をチャットで共有
+      await this.sendChatMessage(
+        'trading',
+        `${result.pair} ${result.side} を実行しました（価格: ${result.price}）`
+      );
     } else {
       console.error(`[MEMBER-CLAW] Trade failed: ${result.error}`);
       await this.gatewayClient.sendReceipt(
@@ -492,6 +511,7 @@ class MemberClawApplication {
         undefined,
         result.error
       );
+      await this.sendChatMessage('trading', `トレード実行失敗: ${result.error}`);
     }
   }
 
@@ -616,6 +636,91 @@ class MemberClawApplication {
     });
   }
 
+  // ==================== CLAW チャット ====================
+
+  /**
+   * claw_chat_logs テーブルを購読し、他CLAWからのメッセージを受信する
+   */
+  private async connectToChat(): Promise<void> {
+    console.log('[MEMBER-CLAW] Connecting to CLAW chat...');
+
+    this.chatChannel = this.supabase
+      .channel('claw-chat-general')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'claw_chat_logs',
+          filter: 'channel_name=eq.general',
+        },
+        (payload) => {
+          const msg = payload.new as any;
+          // 自分のメッセージは無視
+          if (msg.sender_member_id === this.config.member_id) return;
+          const senderName = msg.metadata?.display_name || `CLAW-${msg.sender_member_id.substring(0, 6)}`;
+          console.log(`[CLAW-CHAT #general] ${senderName}: ${msg.content}`);
+          this.handleChatMessage(msg);
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'claw_chat_logs',
+          filter: 'channel_name=eq.trading',
+        },
+        (payload) => {
+          const msg = payload.new as any;
+          if (msg.sender_member_id === this.config.member_id) return;
+          const senderName = msg.metadata?.display_name || `CLAW-${msg.sender_member_id.substring(0, 6)}`;
+          console.log(`[CLAW-CHAT #trading] ${senderName}: ${msg.content}`);
+          this.handleChatMessage(msg);
+        }
+      )
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          console.log('[MEMBER-CLAW] CLAW chat connected');
+        }
+      });
+  }
+
+  /**
+   * claw_chat_logs にメッセージを送信する
+   */
+  async sendChatMessage(channel: string, content: string, messageType: string = 'text'): Promise<void> {
+    try {
+      const { error } = await this.supabase.from('claw_chat_logs').insert({
+        channel_name: channel,
+        sender_member_id: this.config.member_id,
+        message_type: messageType,
+        content,
+        metadata: { display_name: this.displayName },
+      });
+
+      if (error) {
+        console.error(`[MEMBER-CLAW] Failed to send chat message: ${error.message}`);
+      }
+    } catch (err: any) {
+      console.error(`[MEMBER-CLAW] Chat send error: ${err.message}`);
+    }
+  }
+
+  /**
+   * 他CLAWからのチャットメッセージを処理する
+   * トレードシグナル共有や情報交換に応答
+   */
+  private async handleChatMessage(msg: any): Promise<void> {
+    // システムメッセージは無視
+    if (msg.message_type === 'system') return;
+
+    // トレードチャンネルで相場情報が共有された場合のログ
+    if (msg.channel_name === 'trading') {
+      console.log(`[MEMBER-CLAW] Trade chat from ${msg.metadata?.display_name || 'unknown'}: ${msg.content}`);
+    }
+  }
+
   // ==================== シャットダウン ====================
 
   /**
@@ -637,7 +742,24 @@ class MemberClawApplication {
       console.log('[MEMBER-CLAW] Heartbeat stopped');
     }
 
+    // チャットでオフライン通知
+    if (this.supabase && this.config) {
+      try {
+        await this.sendChatMessage('general', 'オフラインになります。', 'system');
+      } catch {
+        // シャットダウン中のエラーは無視
+      }
+    }
+
     // Realtime チャネルの解除
+    if (this.chatChannel) {
+      try {
+        await this.supabase.removeChannel(this.chatChannel);
+        console.log('[MEMBER-CLAW] Chat channel unsubscribed');
+      } catch (error: any) {
+        console.error('[MEMBER-CLAW] Error unsubscribing chat channel:', error.message);
+      }
+    }
     if (this.realtimeChannel) {
       try {
         await this.supabase.removeChannel(this.realtimeChannel);
