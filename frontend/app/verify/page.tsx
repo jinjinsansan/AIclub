@@ -76,7 +76,10 @@ function VerifyContent() {
     try {
       const { error } = await supabase.auth.resend({
         type: 'signup',
-        email
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`
+        }
       })
 
       if (error) {
@@ -84,7 +87,7 @@ function VerifyContent() {
         return
       }
 
-      alert('認証メールを再送信しました。メールをご確認ください。')
+      alert('認証メールを再送信しました。メールをご確認ください。（届かない場合は迷惑メールフォルダもご確認ください）')
     } catch (err: any) {
       setErrorMessage(err.message || '再送信に失敗しました')
     }
