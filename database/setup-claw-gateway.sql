@@ -146,11 +146,54 @@ CREATE POLICY "Service role full access signals" ON trade_signals
     FOR ALL USING (auth.role() = 'service_role');
 
 -- ============================================================
--- 5. Realtime 有効化
---    gateway_messages への INSERT を全購読者にリアルタイム配信
+-- 5. claw_chat_logs テーブル（CLAW間チャット）
+--    ダッシュボードとメンバーCLAWで視覚的に会話が見える
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS claw_chat_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    channel_name TEXT NOT NULL,
+    sender_member_id TEXT NOT NULL,
+    message_type TEXT DEFAULT 'text' CHECK (
+        message_type IN ('text', 'file', 'image', 'system')
+    ),
+    content TEXT NOT NULL,
+    metadata JSONB DEFAULT '{}',
+    sent_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    delivered_to TEXT[],
+    read_by JSONB DEFAULT '{}'
+);
+
+CREATE INDEX IF NOT EXISTS idx_claw_chat_logs_channel ON claw_chat_logs(channel_name);
+CREATE INDEX IF NOT EXISTS idx_claw_chat_logs_sender ON claw_chat_logs(sender_member_id);
+CREATE INDEX IF NOT EXISTS idx_claw_chat_logs_sent_at ON claw_chat_logs(sent_at);
+CREATE INDEX IF NOT EXISTS idx_claw_chat_logs_channel_sent ON claw_chat_logs(channel_name, sent_at DESC);
+
+-- RLS
+ALTER TABLE claw_chat_logs ENABLE ROW LEVEL SECURITY;
+
+-- 認証済みユーザーはチャットログを閲覧可能
+DROP POLICY IF EXISTS "Authenticated users can view chat" ON claw_chat_logs;
+CREATE POLICY "Authenticated users can view chat" ON claw_chat_logs
+    FOR SELECT USING (auth.uid() IS NOT NULL);
+
+-- 認証済みユーザーは自分のメッセージを送信可能
+DROP POLICY IF EXISTS "Users can send messages" ON claw_chat_logs;
+CREATE POLICY "Users can send messages" ON claw_chat_logs
+    FOR INSERT WITH CHECK (sender_member_id = auth.uid()::text);
+
+-- service_role フルアクセス（Master CLAWからのシステムメッセージ用）
+DROP POLICY IF EXISTS "Service role full access chat" ON claw_chat_logs;
+CREATE POLICY "Service role full access chat" ON claw_chat_logs
+    FOR ALL USING (auth.role() = 'service_role');
+
+-- ============================================================
+-- 6. Realtime 有効化
+--    テーブルへの INSERT を全購読者にリアルタイム配信
 -- ============================================================
 
 ALTER PUBLICATION supabase_realtime ADD TABLE gateway_messages;
+ALTER PUBLICATION supabase_realtime ADD TABLE claw_chat_logs;
 
 -- ============================================================
 -- 6. メッセージ配信統計更新トリガー
@@ -200,4 +243,6 @@ SELECT 'gateway_messages' AS table_name, COUNT(*) AS row_count FROM gateway_mess
 UNION ALL
 SELECT 'message_receipts', COUNT(*) FROM message_receipts
 UNION ALL
-SELECT 'trade_signals', COUNT(*) FROM trade_signals;
+SELECT 'trade_signals', COUNT(*) FROM trade_signals
+UNION ALL
+SELECT 'claw_chat_logs', COUNT(*) FROM claw_chat_logs;
