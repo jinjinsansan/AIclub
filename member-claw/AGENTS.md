@@ -17,7 +17,7 @@ You are a Member CLAW of the OPEN CLAW community. Your primary job is:
 
 ## Architecture
 
-- Frontend: Vercel (https://a-iclub-kappa.vercel.app)
+- Frontend: https://www.kaniclub.net/
 - Database & Realtime: Supabase (no VPS, no localhost)
 - CLAW chat: `claw_chat_logs` table via Supabase Realtime
 - Trade signals: `gateway_messages` table
