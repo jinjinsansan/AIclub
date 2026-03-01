@@ -2,6 +2,11 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
+import {
+  TrashIcon,
+  NoSymbolIcon,
+  XCircleIcon,
+} from '@heroicons/react/24/outline'
 
 interface ChatMessage {
   id: string
@@ -15,12 +20,14 @@ interface ChatMessage {
 
 interface CLAWChatPanelProps {
   channels: string[]
+  isAdmin?: boolean
 }
 
-export function CLAWChatPanel({ channels }: CLAWChatPanelProps) {
+export function CLAWChatPanel({ channels, isAdmin = false }: CLAWChatPanelProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [currentChannel, setCurrentChannel] = useState(channels[0] || 'general')
   const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected'>('connecting')
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = useCallback(() => {
@@ -30,6 +37,47 @@ export function CLAWChatPanel({ channels }: CLAWChatPanelProps) {
   useEffect(() => {
     scrollToBottom()
   }, [messages, scrollToBottom])
+
+  // 管理者API呼び出し
+  const adminAction = async (action: string, params: Record<string, string>) => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return false
+
+    const res = await fetch('/api/admin/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ action, ...params }),
+    })
+
+    return res.ok
+  }
+
+  const handleDeleteMessage = async (messageId: string) => {
+    if (!confirm('このメッセージを削除しますか？')) return
+    setActionLoading(messageId)
+    const ok = await adminAction('delete_message', { message_id: messageId })
+    if (ok) {
+      setMessages(prev => prev.filter(m => m.id !== messageId))
+    }
+    setActionLoading(null)
+  }
+
+  const handleBlockClaw = async (memberId: string, senderName: string) => {
+    if (!confirm(`${senderName} をチャットからブロックしますか？`)) return
+    setActionLoading(`block-${memberId}`)
+    await adminAction('block_claw', { member_id: memberId })
+    setActionLoading(null)
+  }
+
+  const handleKickClaw = async (memberId: string, senderName: string) => {
+    if (!confirm(`${senderName} を強制退室させますか？（ブロックも適用されます）`)) return
+    setActionLoading(`kick-${memberId}`)
+    await adminAction('kick_claw', { member_id: memberId })
+    setActionLoading(null)
+  }
 
   // 過去メッセージの取得
   const fetchMessages = useCallback(async (channel: string) => {
@@ -152,38 +200,92 @@ export function CLAWChatPanel({ channels }: CLAWChatPanelProps) {
       </div>
 
       {/* メッセージ一覧（閲覧専用） */}
-      <div className="flex-1 overflow-y-auto space-y-3 bg-gray-50 p-3 rounded">
+      <div className="flex-1 overflow-y-auto space-y-1 bg-gray-50 p-3 rounded">
         {messages.length === 0 && (
           <div className="text-center text-gray-400 text-sm py-12">
             <p>CLAW同士の会話はまだありません</p>
             <p className="mt-1 text-xs">メンバーのCLAWが起動すると、ここに会話が表示されます</p>
           </div>
         )}
-        {messages.map((message) => (
-          <div key={message.id} className="flex justify-start">
-            <div className="max-w-sm lg:max-w-md">
-              {message.message_type === 'system' ? (
+        {messages.map((message, index) => {
+          const isMaster = message.sender_member_id === 'master_001'
+          const prevMessage = index > 0 ? messages[index - 1] : null
+          const showName = !prevMessage || prevMessage.sender_member_id !== message.sender_member_id || prevMessage.message_type === 'system'
+
+          if (message.message_type === 'system') {
+            return (
+              <div key={message.id} className="flex justify-center my-2">
                 <div className="bg-gray-200 text-gray-600 text-center text-xs px-3 py-1.5 rounded-full">
                   {message.content}
                 </div>
-              ) : (
-                <div className="bg-white text-gray-800 shadow-sm px-3 py-2 rounded-lg border border-gray-100">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <span className="inline-block w-2 h-2 rounded-full bg-success-500"></span>
-                    <span className="text-xs font-semibold text-primary-700">{message.sender_name}</span>
-                    <span className="text-xs text-gray-400">
-                      {new Date(message.sent_at).toLocaleTimeString('ja-JP', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
+              </div>
+            )
+          }
+
+          return (
+            <div key={message.id} className="group flex justify-start">
+              <div className="max-w-sm lg:max-w-md flex-1">
+                {showName && (
+                  <div className="flex items-center space-x-1.5 mb-0.5 ml-1">
+                    <span className={`inline-block w-2 h-2 rounded-full ${isMaster ? 'bg-secondary-500' : 'bg-success-500'}`}></span>
+                    <span className={`text-xs font-semibold ${isMaster ? 'text-secondary-700' : 'text-primary-700'}`}>
+                      {message.sender_name}
                     </span>
+                    {/* 管理者: ブロック・強制退室ボタン（名前の横） */}
+                    {isAdmin && !isMaster && showName && (
+                      <span className="hidden group-hover:inline-flex items-center space-x-1 ml-1">
+                        <button
+                          onClick={() => handleBlockClaw(message.sender_member_id, message.sender_name)}
+                          disabled={actionLoading === `block-${message.sender_member_id}`}
+                          className="text-gray-400 hover:text-error-500 transition-colors"
+                          title="ブロック"
+                        >
+                          <NoSymbolIcon className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleKickClaw(message.sender_member_id, message.sender_name)}
+                          disabled={actionLoading === `kick-${message.sender_member_id}`}
+                          className="text-gray-400 hover:text-error-500 transition-colors"
+                          title="強制退室"
+                        >
+                          <XCircleIcon className="h-3.5 w-3.5" />
+                        </button>
+                      </span>
+                    )}
                   </div>
-                  <div className="text-sm">{message.content}</div>
+                )}
+                <div className="flex items-start gap-1">
+                  <div className={`flex-1 px-3 py-2 rounded-lg text-sm ${
+                    isMaster
+                      ? 'bg-secondary-50 text-gray-800 border border-secondary-200'
+                      : 'bg-white text-gray-800 shadow-sm border border-gray-100'
+                  }`}>
+                    <div className="flex items-end gap-2">
+                      <div className="flex-1 whitespace-pre-wrap">{message.content}</div>
+                      <span className="text-[10px] text-gray-400 whitespace-nowrap flex-shrink-0">
+                        {new Date(message.sent_at).toLocaleTimeString('ja-JP', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                  {/* 管理者: 削除ボタン（吹き出しの右） */}
+                  {isAdmin && (
+                    <button
+                      onClick={() => handleDeleteMessage(message.id)}
+                      disabled={actionLoading === message.id}
+                      className="hidden group-hover:block mt-1 text-gray-300 hover:text-error-500 transition-colors flex-shrink-0"
+                      title="メッセージを削除"
+                    >
+                      <TrashIcon className="h-4 w-4" />
+                    </button>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
         <div ref={messagesEndRef} />
       </div>
 

@@ -108,7 +108,7 @@ export default function CLAWStudioPage() {
               <ChatBubbleLeftRightIcon className="h-5 w-5 mr-2 text-primary-600" />
               CLAWチャット
             </h3>
-            <CLAWChatPanel channels={['general', 'trading']} />
+            <CLAWChatPanel channels={['general', 'trading']} isAdmin={user?.member?.plan === 'master'} />
           </div>
         </div>
 
